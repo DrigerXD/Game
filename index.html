@@ -1,37 +1,684 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f8f8f5"><title>Wordloop — unlimited word guessing</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f5ef">
+<meta name="description" content="Wordloop is a free, unlimited five-letter word guessing game. Play a fresh word whenever you want, or take on the daily challenge.">
+<meta property="og:title" content="Wordloop — unlimited word guessing">
+<meta property="og:description" content="One more round? Always. Unlimited five-letter word puzzles plus a daily challenge.">
+<meta property="og:type" content="website">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wordloop">
+<title>Wordloop — unlimited word guessing</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>
+try{var s=JSON.parse(localStorage.getItem('wordloop.settings')||'{}');var d=s.theme==='dark'||(s.theme!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';if(s.contrast)document.documentElement.classList.add('hc')}catch(e){}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@500;700&family=DM+Sans:wght@400;500;600;700;800&display=swap">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@500;700&family=DM+Sans:wght@400;500;600;700;800&display=swap');
-:root{--paper:#f8f8f5;--ink:#20251f;--muted:#777d75;--line:#d9dcd5;--green:#56845d;--green2:#dcebdd;--gold:#c49a4c;--gold2:#f4e9ce;--gray:#858a83;--tile:#fff;--shadow:0 16px 50px #242c2310}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh}.wrap{max-width:740px;margin:auto;padding:28px 22px 48px}.top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:19px}.brand{display:flex;gap:11px;align-items:center}.logo{width:38px;height:38px;background:var(--green);color:white;border-radius:12px;display:grid;place-items:center;font-family:'DM Mono';font-size:20px;font-weight:700}.brand h1{font-size:20px;margin:0;letter-spacing:-.6px}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.top-actions{display:flex;gap:8px}.iconbtn{width:40px;height:40px;background:white;border:1px solid var(--line);border-radius:12px;color:var(--ink);font-size:17px;cursor:pointer}.iconbtn:hover{background:#eff2ec}.hero{text-align:center;padding:24px 0 17px}.eyebrow{text-transform:uppercase;font-size:10px;font-weight:800;letter-spacing:1.8px;color:var(--green);margin:0 0 7px}.hero h2{font-size:26px;letter-spacing:-1px;margin:0}.hero p{color:var(--muted);font-size:13px;margin:7px 0 0}.game{display:grid;grid-template-columns:1fr 228px;gap:22px;align-items:start}.board-wrap{display:flex;justify-content:center;padding:6px 0}.board{display:grid;gap:7px}.row{display:grid;grid-template-columns:repeat(5,54px);gap:7px}.tile{width:54px;height:54px;border:2px solid var(--line);border-radius:10px;background:var(--tile);display:grid;place-items:center;font-family:'DM Mono',monospace;font-size:24px;font-weight:700;text-transform:uppercase;transition:transform .18s,border-color .15s,background .25s}.tile.filled{border-color:#9ba198;animation:pop .1s}.tile.flip{animation:flip .48s ease forwards}.tile.correct{background:var(--green);border-color:var(--green);color:white}.tile.present{background:var(--gold);border-color:var(--gold);color:white}.tile.absent{background:#747a72;border-color:#747a72;color:white}@keyframes pop{50%{transform:scale(1.07)}}@keyframes flip{0%{transform:rotateX(0)}45%{transform:rotateX(90deg)}55%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}.side{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}.side h3{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;margin:0 0 13px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;text-align:center;padding-bottom:15px;border-bottom:1px solid #eceee9}.stats strong{font-size:21px;display:block}.stats span{font-size:10px;color:var(--muted)}.status{height:40px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--green)}.newgame{width:100%;border:0;background:var(--ink);color:white;border-radius:12px;padding:12px 14px;font:700 13px 'DM Sans';cursor:pointer;transition:.15s}.newgame:hover{background:var(--green);transform:translateY(-1px)}.side-note{font-size:11px;color:var(--muted);line-height:1.5;margin:13px 0 0}.keyboard{max-width:500px;margin:15px auto 0;display:grid;gap:7px}.keyrow{display:flex;justify-content:center;gap:6px}.key{height:47px;min-width:32px;padding:0 7px;border:0;border-radius:8px;background:#e7e9e3;color:var(--ink);font:700 12px 'DM Sans';cursor:pointer;box-shadow:0 2px 0 #d2d5ce}.key:hover{background:#dce0d7}.key.wide{min-width:58px;font-size:10px}.key.correct{background:var(--green);color:white}.key.present{background:var(--gold);color:white}.key.absent{background:#858a83;color:white}.foot{text-align:center;color:#969b94;font-size:11px;margin-top:25px}.toast{position:fixed;top:20px;left:50%;transform:translate(-50%,-100px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:700;z-index:3;transition:transform .25s}.toast.show{transform:translate(-50%,0)}dialog{border:0;border-radius:20px;padding:26px;max-width:400px;width:calc(100% - 32px);box-shadow:0 20px 80px #0003;color:var(--ink)}dialog::backdrop{background:#1d241db0}.modalhead{display:flex;justify-content:space-between;align-items:center}.modalhead h2{font-size:20px;margin:0}.close{border:0;background:#eff1eb;border-radius:9px;width:32px;height:32px;font-size:18px;cursor:pointer}.legend{display:grid;gap:12px;margin-top:19px;font-size:13px;color:#535a52}.example{display:flex;gap:5px}.mini{width:32px;height:32px;border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;font:700 14px 'DM Mono'}.mini.correct{background:var(--green);color:white;border-color:var(--green)}.mini.present{background:var(--gold);color:white;border-color:var(--gold)}.mini.absent{background:#858a83;color:white;border-color:#858a83}.sharecard{background:#f1f3ee;padding:14px;border-radius:12px;font:14px 'DM Mono';white-space:pre-line;margin:16px 0}.modalcopy{font-size:13px;line-height:1.6;color:var(--muted)}
-@media(max-width:600px){.wrap{padding:16px 14px 28px}.game{grid-template-columns:1fr;gap:8px}.side{order:2;padding:13px 15px}.side h3{margin-bottom:9px}.stats{padding-bottom:9px}.status{height:32px}.side-note{display:none}.hero{padding:17px 0 10px}.row{grid-template-columns:repeat(5,min(15vw,54px));gap:6px}.tile{width:min(15vw,54px);height:min(15vw,54px);font-size:22px}.board{gap:6px}.keyboard{margin-top:12px;gap:6px}.keyrow{gap:4px}.key{height:44px;min-width:0;flex:1;padding:0 2px}.key.wide{flex:1.45;font-size:9px}.board-wrap{padding:4px 0}.top{padding-bottom:13px}.brand h1{font-size:18px}}
-</style></head>
-<body><div class="wrap"><header class="top"><div class="brand"><div class="logo">W</div><div><h1>wordloop</h1><p>One more round? Always.</p></div></div><div class="top-actions"><button class="iconbtn" id="helpBtn" aria-label="How to play">?</button><button class="iconbtn" id="statsBtn" aria-label="Your stats">▥</button></div></header><section class="hero"><p class="eyebrow">Unlimited word game</p><h2>Find the hidden word.</h2><p>Six guesses. A fresh five-letter word whenever you want.</p></section><main class="game"><div><div class="board-wrap"><div class="board" id="board" aria-label="Guess board"></div></div><div class="keyboard" id="keyboard" aria-label="On-screen keyboard"></div></div><aside class="side"><h3>Your streak</h3><div class="stats"><div><strong id="played">0</strong><span>played</span></div><div><strong id="winrate">0%</strong><span>win rate</span></div><div><strong id="streak">0</strong><span>streak</span></div></div><div class="status" id="status" aria-live="polite">Ready when you are</div><button class="newgame" id="newGame">↻ &nbsp;New word</button><p class="side-note">No daily limit, no account, no pressure. Your stats stay on this device.</p></aside></main><footer class="foot">A little word game for your next coffee break.</footer></div><div class="toast" id="toast" role="status"></div>
-<dialog id="help"><div class="modalhead"><h2>How to play</h2><button class="close" data-close="help" aria-label="Close">×</button></div><p class="modalcopy">Guess the hidden five-letter word in six tries. After each guess, the tiles show how close you are.</p><div class="legend"><div class="example"><span class="mini correct">S</span><span><b>Green</b> — right letter, right spot.</span></div><div class="example"><span class="mini present">T</span><span><b>Gold</b> — in the word, different spot.</span></div><div class="example"><span class="mini absent">O</span><span><b>Gray</b> — not in the word.</span></div></div><p class="modalcopy">Press Enter to submit, Backspace to edit. You can start a new word any time.</p></dialog><dialog id="share"><div class="modalhead"><h2>Nice playing!</h2><button class="close" data-close="share" aria-label="Close">×</button></div><p class="modalcopy" id="shareText"></p><div class="sharecard" id="shareCard"></div><button class="newgame" id="copyShare">Copy result</button><p class="modalcopy">Your answer stays secret in the share result.</p></dialog>
+:root{
+  --paper:#f6f5ef;--glow:#dfeadb;--ink:#1d231c;--muted:#6a7168;--line:#dcdfd6;
+  --surface:#fff;--surface2:#eef0e9;
+  --green:#4f8057;--gold:#c8963e;--gray:#767c74;
+  --tile-line:#cfd3c9;--tile-filled:#8f968c;
+  --key:#e4e7df;--key-edge:#cdd1c7;--key-ink:#1d231c;--key-absent:#8a9087;--key-absent-ink:#fff;
+  --shadow:0 18px 50px -20px #1d231c40;
+  --tile:clamp(40px,min(14vw,calc((100dvh - 430px)/6)),60px);
+  color-scheme:light;
+}
+:root[data-theme=dark]{
+  --paper:#111611;--glow:#1b2a1d;--ink:#eef1ea;--muted:#9aa296;--line:#283027;
+  --surface:#1a201a;--surface2:#232b23;
+  --green:#5c9a67;--gold:#bf9440;--gray:#444b43;
+  --tile-line:#363e35;--tile-filled:#6c756a;
+  --key:#2d362c;--key-edge:#212920;--key-ink:#eef1ea;--key-absent:#1a201a;--key-absent-ink:#6f776c;
+  --shadow:0 18px 50px -20px #000c;
+  color-scheme:dark;
+}
+:root.hc{--green:#e0662a;--gold:#3f8fd8}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent;background:radial-gradient(900px 420px at 50% -170px,var(--glow),transparent 72%) no-repeat,var(--paper);transition:background-color .25s,color .25s}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--green) 70%,transparent);outline-offset:2px}
+.wrap{max-width:780px;margin:auto;padding:22px 20px 36px}
+
+/* header */
+.top{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;color:#fff;font:700 21px 'DM Mono',monospace;background:linear-gradient(145deg,color-mix(in srgb,var(--green) 80%,#fff),var(--green));box-shadow:0 6px 16px -6px var(--green)}
+.brand h1{font-size:21px;margin:0;letter-spacing:-.7px}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+.top-actions{display:flex;gap:8px}
+.iconbtn{width:42px;height:42px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);border-radius:13px;cursor:pointer;transition:transform .12s,background .15s}
+.iconbtn:hover{background:var(--surface2)}
+.iconbtn:active{transform:scale(.94)}
+.iconbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* hero */
+.hero{text-align:center;padding:22px 0 14px}
+.seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px}
+.seg button{border:0;background:none;padding:7px 18px;border-radius:999px;font-weight:700;font-size:12.5px;color:var(--muted);cursor:pointer;transition:.15s}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px #0002}
+.hero h2{font-size:28px;letter-spacing:-1.2px;margin:0}
+.hero p{color:var(--muted);font-size:13.5px;margin:7px 0 0}
+
+/* layout */
+.game{display:grid;grid-template-columns:1fr 236px;gap:24px;align-items:start}
+.board-wrap{display:flex;justify-content:center;padding:6px 0}
+.board{display:grid;gap:6px}
+.row{display:grid;grid-template-columns:repeat(5,var(--tile));gap:6px}
+
+/* tiles */
+.tile{position:relative;width:var(--tile);height:var(--tile);display:grid;place-items:center;border:2px solid var(--tile-line);border-radius:11px;background:var(--surface);font-family:'DM Mono',ui-monospace,monospace;font-weight:700;font-size:calc(var(--tile)*.46);text-transform:uppercase;transition:border-color .15s,background-color .2s}
+.tile.filled{border-color:var(--tile-filled)}
+.tile.ghost::after{content:attr(data-hint);opacity:.3;color:var(--green)}
+.tile.correct,.tile.present,.tile.absent{color:#fff;border-color:transparent}
+.tile.correct{background:var(--green)}
+.tile.present{background:var(--gold)}
+.tile.absent{background:var(--gray)}
+.tile.pop{animation:pop .12s ease}
+.tile.flip{animation:flip .5s ease}
+.tile.bounce{animation:bounce .7s cubic-bezier(.3,.7,.4,1) both;animation-delay:calc(var(--i)*90ms)}
+.row.shake{animation:shake .45s}
+@keyframes pop{50%{transform:scale(1.09)}}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}35%{transform:translateY(-16px)}60%{transform:translateY(3px)}80%{transform:translateY(-4px)}}
+
+/* side card */
+.side{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.side h3{font-size:11.5px;text-transform:uppercase;letter-spacing:1.4px;margin:0 0 13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;text-align:center;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.stats strong{font-size:22px;display:block;letter-spacing:-.5px}
+.stats span{font-size:10.5px;color:var(--muted)}
+.status{min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13.5px;font-weight:700;color:var(--green);padding:6px 0}
+.countdown{text-align:center;font:500 12px 'DM Mono',monospace;color:var(--muted);margin:-4px 0 10px}
+.btn{width:100%;border:0;border-radius:13px;padding:12px 14px;font-weight:700;font-size:13.5px;cursor:pointer;transition:transform .12s,background .15s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.primary:hover{background:var(--green);color:#fff}
+.btn.ghost{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--line)}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn-stack{display:grid;gap:8px}
+.side-note{font-size:11.5px;color:var(--muted);line-height:1.55;margin:13px 0 0}
+
+/* keyboard */
+.keyboard{max-width:520px;margin:16px auto 0;display:grid;gap:7px}
+.keyrow{display:flex;justify-content:center;gap:6px}
+.key{height:50px;min-width:34px;padding:0 8px;border:0;border-radius:9px;background:var(--key);color:var(--key-ink);font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 0 var(--key-edge);transition:transform .08s,background .2s;touch-action:manipulation;user-select:none}
+.key:active{transform:translateY(1px) scale(.96)}
+.key.wide{min-width:62px;font-size:11px}
+.key.correct{background:var(--green);color:#fff}
+.key.present{background:var(--gold);color:#fff}
+.key.absent{background:var(--key-absent);color:var(--key-absent-ink)}
+.foot{text-align:center;color:var(--muted);font-size:11.5px;margin-top:26px;opacity:.8}
+
+/* toast + confetti */
+.toast{position:fixed;top:calc(18px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-120px);background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:700;z-index:30;transition:transform .28s cubic-bezier(.3,1.2,.5,1);max-width:calc(100vw - 32px);text-align:center;box-shadow:0 10px 30px #0004}
+.toast.show{transform:translate(-50%,0)}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:25}
+.confetti i{position:absolute;top:-24px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),112vh) rotate(var(--rot))}}
+
+/* dialogs */
+dialog{border:0;border-radius:22px;padding:0;max-width:420px;width:calc(100% - 28px);background:var(--surface);color:var(--ink);box-shadow:0 24px 90px #0005}
+dialog[open]{animation:rise .22s ease}
+dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}}
+.dlg{padding:24px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.modalhead h2{font-size:21px;letter-spacing:-.6px;margin:0}
+.close{border:0;background:var(--surface2);border-radius:10px;width:34px;height:34px;font-size:19px;cursor:pointer}
+.close:hover{background:var(--line)}
+.modalcopy{font-size:13.5px;line-height:1.6;color:var(--muted);margin:10px 0}
+.legend{display:grid;gap:12px;margin:18px 0;font-size:13.5px;color:var(--muted)}
+.legend b{color:var(--ink)}
+.example{display:flex;gap:10px;align-items:center}
+.mini{width:34px;height:34px;flex:none;border-radius:8px;display:grid;place-items:center;font:700 15px 'DM Mono',monospace;color:#fff}
+.mini.correct{background:var(--green)}.mini.present{background:var(--gold)}.mini.absent{background:var(--gray)}
+.tips{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--muted)}
+.tips b{color:var(--ink)}
+.sharecard{background:var(--surface2);padding:16px;border-radius:14px;font:15px/1.5 'DM Mono',monospace;white-space:pre-line;margin:14px 0;text-align:center;overflow-wrap:anywhere}
+.dlg-actions{display:grid;gap:8px;margin-top:14px}
+.statsgrid{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;margin:16px 0 20px}
+.statsgrid strong{font-size:26px;display:block;letter-spacing:-.8px}
+.statsgrid span{font-size:11px;color:var(--muted)}
+.dist{display:grid;gap:5px}
+.bar{display:grid;grid-template-columns:14px 1fr;gap:8px;align-items:center;font-size:12px}
+.bar b{color:var(--muted);text-align:center}
+.bar i{display:block;min-width:26px;background:var(--gray);color:#fff;font-style:normal;font-weight:700;text-align:right;padding:3px 8px;border-radius:6px;transition:width .5s}
+.bar.now i{background:var(--green)}
+.setting{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.setting:last-of-type{border-bottom:0}
+.setting strong{font-size:14px;display:block}
+.setting small{color:var(--muted);font-size:12px;line-height:1.4;display:block;margin-top:2px}
+.sw{position:relative;flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--line);cursor:pointer;transition:background .2s}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004;transition:transform .2s}
+.sw[aria-checked=true]{background:var(--green)}
+.sw[aria-checked=true]::after{transform:translateX(20px)}
+.seg.small{margin:0}
+.seg.small button{padding:6px 12px;font-size:12px}
+.linkbtn{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer;padding:8px 0 0}
+
+@media(max-width:620px){
+  .wrap{padding:14px 12px 24px}
+  .top{padding-bottom:12px}
+  .brand h1{font-size:19px}
+  .hero{padding:12px 0 6px}
+  .hero h2{font-size:22px}
+  .hero p{display:none}
+  .seg{margin-bottom:10px}
+  .game{grid-template-columns:1fr;gap:12px}
+  .side{order:2;padding:14px 16px}
+  .side h3{margin-bottom:9px}
+  .stats{padding-bottom:9px}
+  .status{min-height:34px}
+  .side-note{display:none}
+  .keyboard{margin-top:10px;gap:6px}
+  .keyrow{gap:4px}
+  .key{height:46px;min-width:0;flex:1;padding:0 2px}
+  .key.wide{flex:1.5;font-size:10px}
+  .btn-stack{grid-template-columns:1fr 1fr}
+  .foot{margin-top:18px}
+  .dlg{padding:20px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">W</div>
+      <div><h1>wordloop</h1><p>One more round? Always.</p></div>
+    </div>
+    <div class="top-actions">
+      <button class="iconbtn" id="helpBtn" aria-label="How to play"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/></svg></button>
+      <button class="iconbtn" id="statsBtn" aria-label="Your stats"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V4M19 20v-5"/></svg></button>
+      <button class="iconbtn" id="settingsBtn" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="seg" role="group" aria-label="Game mode">
+      <button id="modeFree" data-mode="free" aria-pressed="true">Unlimited</button>
+      <button id="modeDaily" data-mode="daily" aria-pressed="false">Daily</button>
+    </div>
+    <h2 id="heroTitle">Find the hidden word.</h2>
+    <p id="heroSub">Six guesses. A fresh five-letter word whenever you want.</p>
+  </section>
+
+  <main class="game">
+    <div>
+      <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="Guess board"></div></div>
+      <div class="keyboard" id="keyboard" aria-label="On-screen keyboard"></div>
+    </div>
+    <aside class="side">
+      <h3 id="sideTitle">Your streak</h3>
+      <div class="stats">
+        <div><strong id="played">0</strong><span>played</span></div>
+        <div><strong id="winrate">0%</strong><span>win rate</span></div>
+        <div><strong id="streak">0</strong><span>streak</span></div>
+      </div>
+      <div class="status" id="status" aria-live="polite">Ready when you are</div>
+      <div class="countdown" id="countdown" hidden></div>
+      <div class="btn-stack">
+        <button class="btn ghost" id="hintBtn">Hint</button>
+        <button class="btn ghost" id="shareBtn" hidden>Share result</button>
+        <button class="btn primary" id="newGame">New word</button>
+      </div>
+      <p class="side-note" id="sideNote">No daily limit, no account, no pressure. Your stats stay on this device.</p>
+    </aside>
+  </main>
+
+  <footer class="foot">A little word game for your next coffee break.</footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="assertive"></div>
+
+<dialog id="help"><div class="dlg">
+  <div class="modalhead"><h2>How to play</h2><button class="close" data-close="help" aria-label="Close">×</button></div>
+  <p class="modalcopy">Guess the hidden five-letter word in six tries. After each guess, the tiles show how close you are.</p>
+  <div class="legend">
+    <div class="example"><span class="mini correct">S</span><span><b>Green</b> — right letter, right spot.</span></div>
+    <div class="example"><span class="mini present">T</span><span><b>Gold</b> — in the word, different spot.</span></div>
+    <div class="example"><span class="mini absent">O</span><span><b>Gray</b> — not in the word.</span></div>
+  </div>
+  <ul class="tips">
+    <li><b>Unlimited</b> gives you a new word every round.</li>
+    <li><b>Daily</b> is one shared word per day, the same for everyone.</li>
+    <li><b>Hint</b> reveals one letter once per round.</li>
+    <li><b>Hard mode</b> (in settings) forces you to reuse what you've found.</li>
+  </ul>
+  <p class="modalcopy">Press Enter to submit and Backspace to edit.</p>
+</div></dialog>
+
+<dialog id="stats"><div class="dlg">
+  <div class="modalhead"><h2 id="statsTitle">Stats</h2><button class="close" data-close="stats" aria-label="Close">×</button></div>
+  <div class="statsgrid" id="statsGrid"></div>
+  <h3 class="modalcopy" style="margin:0 0 8px;font-weight:700;color:var(--ink)">Guess distribution</h3>
+  <div class="dist" id="dist"></div>
+  <button class="linkbtn" id="resetStats">Reset these stats</button>
+</div></dialog>
+
+<dialog id="settings"><div class="dlg">
+  <div class="modalhead"><h2>Settings</h2><button class="close" data-close="settings" aria-label="Close">×</button></div>
+  <div class="setting"><div><strong>Theme</strong><small>Match your device or pick one.</small></div>
+    <div class="seg small" id="themeSeg" role="group" aria-label="Theme">
+      <button data-theme-set="auto" aria-pressed="true">Auto</button>
+      <button data-theme-set="light" aria-pressed="false">Light</button>
+      <button data-theme-set="dark" aria-pressed="false">Dark</button>
+    </div></div>
+  <div class="setting"><div><strong>Hard mode</strong><small>Revealed hints must be used in later guesses. Switch on at the start of a round.</small></div>
+    <button class="sw" id="hardSw" role="switch" aria-checked="false" aria-label="Hard mode"></button></div>
+  <div class="setting"><div><strong>Colorblind palette</strong><small>Orange and blue instead of green and gold.</small></div>
+    <button class="sw" id="contrastSw" role="switch" aria-checked="false" aria-label="Colorblind palette"></button></div>
+  <div class="setting"><div><strong>Sound</strong><small>Soft tones for typing, reveals and wins.</small></div>
+    <button class="sw" id="soundSw" role="switch" aria-checked="false" aria-label="Sound"></button></div>
+</div></dialog>
+
+<dialog id="share"><div class="dlg">
+  <div class="modalhead"><h2 id="shareHead">Nice playing!</h2><button class="close" data-close="share" aria-label="Close">×</button></div>
+  <p class="modalcopy" id="shareText"></p>
+  <div class="sharecard" id="shareCard"></div>
+  <p class="modalcopy">Your answer stays secret in the share result.</p>
+  <div class="dlg-actions">
+    <button class="btn primary" id="copyShare">Copy result</button>
+    <button class="btn ghost" id="nativeShare" hidden>Share…</button>
+    <button class="btn ghost" id="againBtn">Play another word</button>
+  </div>
+</div></dialog>
+
+<noscript><p style="text-align:center;padding:24px">Wordloop needs JavaScript to run.</p></noscript>
+
 <script>
 (()=>{'use strict';
 const WORDS=`about above abuse actor acute admit adopt adult after again agent agree ahead alarm album alert alike alive allow alone along alter among anger angle angry apart apple apply arena argue arise armed army aside asset audio audit avoid award aware badly baker bases basic beach began begin being below bench berry birth black blame blank blast blend bless blind block blood board boast bonus boost booth bound brain brand brave bread break breed brief bring broad broke brown brush build bunch buyer cable carry catch cause chain chair chart chase cheap check chest chief child china civil claim class clean clear clerk click climb clock close cloth cloud coach coast could count court cover craft crash cream crime cross crowd crown curve cycle daily dance dealt death debut delay depth doing doubt dozen draft drama dream dress drink drive earth eight elite empty enemy enjoy enter entry equal error event every exact exist extra faith false fancy fault favor feast fence fewer fiber field fifth fifty fight final first flame flash fleet floor flour focus force frame frank fraud fresh front fruit fully funny giant given glass globe glory going grace grade grand grant grass great green gross group grown guard guess guest guide habit happy heart heavy hence honey honor horse hotel house human humor ideal image imply index inner input issue ivory jacket jewel joint judge juice knife known label labor large laser later laugh layer learn least leave legal level light limit liquid listen little liver local logic loose lower lucky lunch luxury maybe mayor meant media metal might minor mixed model money month moral motor mount mouse mouth movie music needs never newly night noise north noted novel nurse occur ocean offer often order other ought paint panel paper party peace phase phone photo piano piece pilot pitch place plain plane plant plate point pound power press price pride prime print prior prize proof proud prove queen quick quiet quite radio raise range rapid ratio reach react ready refer right rival river rough round route royal rural scale scene scope score sense serve seven shall shape share sharp sheet shelf shell shift shine shirt shock shoot short shown sight since sixth sixty sized skill sleep slide small smart smile smoke solid solve sorry sound south space spare speak speed spend spent split sport staff stage stake stand start state steam steel stick still stock stone stood store storm story strip study stuff style sugar suite super sweet table taken taste teach teeth tempo thank their theme there these thick thing think third those three threw throw tight times tired title today topic total touch tough tower trace track trade train treat trend trial tribe trick tried truck truly trust truth twice uncle under union unity until upper urban usage usual valid value video visit vital voice waste watch water wheel where which while white whole whose woman women world worry worse worst worth would write wrong wrote yield young`.toUpperCase().split(/\s+/);
 const EXTRA_WORDS=`LEAST STEAL SCENT SLEPT SPELT STARE STEIN SMELT ALERT STERN CREST BLAST STALE SLANT SPENT SLATE CASTE TRAWL TRAIL SCANT STEAD SNARL TRAIN STRAP LEANT STAIR STEAM CRISP SNORT RESIN CLASP SPEND SCALP PLANT LEAPT PETAL STOLE SPLAT FEAST SEDAN STAND CHEST TRASH CRUST PLEAT TRAMP TRIAL SLICE SCALE SCALD RECUT PASTE SPEAR SHALT STRIP WREST CLEAT ISLET SPILT TRIPE CRAFT WRIST DEALT PRINT PRISM BEAST SMART SPIRE ARTSY SNARE SMITE BURST SPLIT SLUMP TENOR PLATE GRANT SNIPE STAGE DRAFT THRUM REACT PARSE SPARE STAIN BASTE CLASH CREPT LAPSE STRAW STALK CRAMP SANER STORE PLAIT SATIN SLAIN STEAK SINCE LEASH SNAIL ALTER TAPIR TALON INEPT SPIEL ADEPT SNEAK SPITE SAUTE COAST UNSET SPORT SPADE CRIMP SWEPT INERT TREND TAPER RINSE SKIRT SPERM LATER RENAL INLET CLEAN SPACE TRUMP HEART RAISE ONSET DELTA PANEL TWIRL KNELT SALTY ANGST TRACE LEARN ROAST TREAD TAMER SPINE SWEAT CRASH MIDST TRICE THEIR SIREN SCARE SLIDE STARK PESTO WASTE LATCH SAINT SUITE SHIRT HASTE NURSE PENAL DECAL SALON SNIDE SPICE GRASP TRADE CAIRN REMIT FLIRT RELIC REFIT UNTIL REBUT PULSE CLAMP PSALM STUMP CHART METAL CLOSE FALSE SMEAR CHANT CLEFT CRATE TRUCE PLANE CURSE SINGE WORST PEDAL ASCOT CLEAR PEARL TRIAD MEANT STONE FETAL SLOPE BLURT FIRST SLANG FROST SLOTH DWELT SNORE TILDE SMILE BRUTE PILOT SKATE PLAIN BOAST SAFER ARISE TRIBE HEIST ACTOR NORTH RECAP SHARP SWIRL BLEND TIDAL PERIL PURSE TRACK TEACH ADULT BRUNT SATYR SLEET SCARF TONAL SHEAR ERUPT PALER UNLIT SCORN SCRAP TRICK STAKE CLUED BRASH SCRUM LANCE STAID AISLE RISEN SHIRE SLIME GLINT SPURT SERUM STANK STAMP ECLAT BLEAT LATHE PLACE THORN YEAST ANTIC SETUP BURNT CAUSE GRAFT GUEST STAVE CLUMP IRATE HATER STORM THUMP TROPE SHALE TORUS FRONT PROSE UPSET SCOUT SLING AROSE PLIER TONIC CHASE ALOFT MOIST PLEAD STYLE FAULT CLOTH SPURN STING TENSE SLACK STACK CATER CLOUT SPORE STRAY TULIP TRULY MIRTH WRATH LUSTY CRAWL SMITH CRANE GREAT CADET CHEAT SNOUT TUNIC SURLY STEEL ENACT MERIT SHARE ARSON OCTAL UTILE HOTEL SHARD MAPLE SERIF MUSTY SCRUB SCAMP GRATE NOISE SOLAR RETCH RANCH SHELF RAMEN STOIC CRYPT STORK PLUME SCALY STEER TRIED CEDAR LOSER ULTRA DEATH SMOTE TUBAL INTER EARTH PRICE SHINE SHORT PRIME AFTER PECAN STORY SNAKE PANIC SPIED LUMEN SPEAK TIMER TORCH MOTEL RALPH SCION SWEAR THROB PIETY SPOIL LOCUS SCOLD SNACK AGENT LOATH ROUSE PRUNE CAPUT TERSE APTLY RUSTY SLICK ROUTE REALM THIRD FLINT SAUCE MISER SONIC UNMET WAIST TEASE SHAFT SPRIG TABLE CAPER POSER SHORN POSIT SUPER FLOAT PAUSE NASTY FETUS THUMB PAINT REGAL SCORE PRONE CRUEL LADEN CAMEL LEACH SLAVE AMPLE ADOPT SPARK FLESH DRAIN GLEAN ABORT WATER FRAIL SLURP PRANK PRAWN RESET STINK BLUNT ULCER FLIER CLANG SHIRK SWARM CUTIE SCONE POISE AVERT MOULT TEPID SEPIA SURGE BLAND REBUS SADLY ALTAR CHASM PLUMB COURT CLONE FILET CAROL LOUSE PHASE CLAIM LEMUR CHIRP DEPTH FLASH ALIEN LITHE SONAR INTRO COUNT UNTIE SHAPE TOWEL SHADE ASHEN SALVE MEDAL PASTY SLINK STUDY ATONE HORSE CRIME DRAPE DANCE TAKER TUBER RIPEN METRO FECAL MARSH SCARY SCRAM APART TEARY FLUTE BUILT ANGEL TOPIC FOIST MONTH PATCH CLERK MATCH STALL CRONE ACORN FORTE SHORE APRON UNCLE STONY TRUNK IMPEL PLANK SMIRK SPECK GIANT VALET NOTCH CRANK PLAID CLING PATSY CLOUD STOMP ANGLE BATON THOSE OLDEN FILER COPSE CHARD OPTIC RASPY BATCH SYRUP SHRUB DRONE FLARE GRAIL PARTY BASIL SCOPE DRANK DRAWL CLANK TRUCK SPAWN CORAL WRITE SHONE ACUTE GRUNT CHUTE REPLY LEASE MUSIC STICK CEASE STEED GRAPE DEPOT ASIDE TAKEN BLAME ANKLE BROTH FLOUT FRESH STOKE ALONE TIGER NICER UNITE REIGN SHUNT FACET DRIFT VITAL PALSY SWORN CRUMP ABUSE SLIMY BASIC SPANK BLIMP RATIO GLOAT PLIED EDICT SOBER BRAND DEBIT FRUIT BERTH SWINE GRAPH MASON DUSTY CREDO RIFLE MINCE SHAME CHEAP WISER MANIC WELSH SLEEP HERON FERAL IDLER SHOAL EMAIL WORSE CHARM PLUSH FORTY BLUSH MINTY SCUBA GLARE LINER BLOAT MELON SKIER WORTH AMEND GNASH START ELECT SCOWL WROTE NADIR DECOR USHER SANDY STUCK OUTER LAGER ANODE HOIST OTHER TWICE GIRTH DUNCE FILTH LUNCH SPIKE MUNCH DROIT LARGE POINT BALER COMET DAUNT FAINT FLAIR ELFIN TEMPO STATE HAUTE SHIED HAREM BASIN PITCH THANK TASTE KNEAD CHILD SHAWL ETHOS FETCH FRISK BLARE BRINE GRAIN POLAR SCOUR SPOUT SINEW INPUT BISON SAUCY BICEP PINCH SUING SCENE CRUDE TOWER LEMON COULD OFTEN LURCH CRUSH TRACT VAULT CUMIN TIPSY SHRUG SNEER LUMPY RANGE ORBIT BRAIN OLDER FELON SPRAY MEATY DEMUR AUNTY STUNG MULCH BRISK MINUS STUNK SPELL HEARD PATIO SOLID AMBLE FLORA SWATH CLIMB BELCH ERASE SHEIK TWEAK FEMUR RAPID PINTO TANGO FORTH FIELD FINAL MARCH SHARK SLUNG BRAWL CREAM DEBAR BATHE ERECT SOLVE SHIFT SLUNK LOFTY FLASK STILL SEMEN CLASS REACH CABLE YEARN UNDER ABLED CABIN NAVEL GUISE FRAME THROW ALOUD POESY PASTA STEEP ADORN HAUNT GRAND ALIGN DONUT OUNCE GLAND FROTH LUCID WHELP AGILE RIGHT DEBUT LURID RAVEN DENIM CURLY ETHIC HASTY BLANK FRANK SHANK STOVE BURLY STOCK SMELL MINER TWINE GRUEL BIRTH LUNAR TARDY RIVET TREAT CHAIN BOULE SHOUT FETID RIVAL PRICK BENCH MAKER AMPLY STILT URINE FARCE TROVE CHAIR MOUNT GAMER SWORE FLAME THING MEDIC SPINY WELCH SWIFT CANAL SWAMP RELAY ANGER BREAD PERCH CARAT BRUSH THONG SIGHT UNFIT SUMAC FLUSH BRACE PRIED PRIDE BEARD NOBLE BLUER HOUSE HOTLY PANSY WHIRL BUSED VISTA CHAMP DENSE STRUT ADORE GRIPE GUILT IDEAL REPAY PRUDE ALONG PROBE DIRTY RANDY DRAWN GHOST NATAL SPOKE SPICY SMACK CRIED TUMOR OCEAN AFIRE GROPE OVERT REHAB PRONG SCREW MANLY FLANK CHUMP GRACE EARLY MORAL SOUTH CREAK CHURN WHEAT CHOSE DITCH TERRA SOUND DEMON FOCAL FLUME SYNOD ENTRY THREW PORCH MORPH DECAY CHINA CLOWN USAGE THINK STOOL BESET CANOE HORDE BEGAT SUGAR MOUSE GUSTO DUTCH SWORD NASAL SHEET SNUCK CIDER MOLAR MATEY DATUM BLEAK FIEND REUSE ASSET BORNE RAINY MANOR PAYER GLEAM INFER AMBER NOSEY SHREW DISCO TWANG GUSTY CRASS DREAM FINER PEACH HABIT AMUSE BRAVE LOAMY WATCH ESTER THESE UNFED SHEEN FICUS TURBO BLADE CARVE ROACH VOTER CORNY MINOR CIGAR TRITE BAGEL SOWER PRIMO WARTY FREAK TROLL LYRIC CLINK EASEL GREET MURKY SWEET TOKEN NICHE ELATE CROWN BEFIT CAVIL MOTIF BLACK TRYST OPINE OPERA PURGE MODEL DRINK DAISY AMITY CANDY BOTCH JOIST USING ASKEW NYMPH BLESS CRAVE FORCE RAYON TRAIT THIEF LOUSY LEFTY TIARA COUPE CHAOS NIGHT BONUS FOCUS ALIKE GLIDE GUILE PHONE MEALY LOGIN CARGO WIELD LIGHT BLIND CAULK SNAKY ADAPT LAYER AIDER ACRID GRIME LUNGE CHIME BACON ALLOT GRIMY METER MOLDY RISKY CRONY TOUCH DEITY HORNY BRINY BEACH LIVER VERSO YACHT SHELL PRESS DINER GLADE ANIME CHORD DECRY URBAN COVET EXALT FIERY ANVIL SOAPY ROOST SALVO CHALK IMPLY STINT ALIVE LATTE LODGE CRUMB SHAKE VIRAL BREAK SHAVE SHADY FLACK ARGUE FABLE NOISY SUAVE GONER INCUR CROUP YIELD UNITY FROND FIBRE FRAUD EXULT VALUE FANCY PUNCH MACRO ENTER THERE BUTCH ATOLL BERET SLEEK GRADE CHORE GROUT BARON DRAKE FRIED MICRO BRAKE BIRCH LOGIC BRINK WENCH EMPTY SILKY ROYAL GLORY FLYER CLUNG MIGHT DOWEL TRUST SWING SALAD MUSHY GAUNT ELITE MURAL GRIEF HALVE LEPER BRIDE DELAY HYENA MANGE MOUTH EATER WHILE TITLE OMBRE WAFER TORSO ALBUM BROIL BRING NOVEL AORTA EXIST GIRLY IMBUE FLEET REPEL TRUSS QUEST LANKY SHEER FATAL HOMER ROUGE PIANO OVATE INLAY ANGRY GAMUT TRUER DETER EXTOL VIRUS SHACK MUSKY HOARD DEIGN LOWER VAUNT PROWL BUNCH MOGUL SULKY CRESS BRASS SKIMP SPEED ROGUE TODAY BEGAN ABODE BRIEF TULLE BEGUN ADOBE PREEN POKER SMOKE FINCH WINCE BLOND DIARY WHITE BILGE SAVOR SHINY MEDIA BUGLE CLOAK BRICK WHOSE WHARF RHINO BARGE MOURN HAIRY LOVER HARPY TAROT TAWNY TYING MADLY ALARM SPREE READY ROUND INGOT WHALE PINEY EIGHT CLOVE POWER RELAX BULGE ARENA FLING TENTH SQUAT ABASE AUDIT GRIND ABOUT LIKEN NERDY RHYME VICAR THYME BRAWN BAKER VIPER CREPE UNWED SMOCK DUMPY WALTZ LABOR TANGY MODAL LINGO EXTRA FIBER DAIRY MONEY PROVE WEIRD CHIDE OWNER GAVEL FEIGN FAIRY FORAY SHOWN BLINK BETEL TACKY FLECK THEME DRESS TONGA APING WREAK HAVEN NOBLY TOAST LYNCH LAPEL GROAN GROIN FAITH DAILY EVICT DROWN CURVE WHOLE RUMBA THICK LOOSE POLKA DWARF APPLE DOUBT ADMIT GRAVE BIGOT EATEN DEVIL DECOY DIMLY BALMY CROAK WAGER DUVET TROOP QUART TITAN AFOUL DRUNK LYING LIMIT ORGAN IRONY MERCY CHAFE WITCH HYPER FLUID CREEP HINGE GOLEM TOUGH BELOW CREME BOWEL GULCH FILMY GIPSY BUSHY SWELL CURIO NEIGH WORLD VOCAL PLUNK DERBY RISER FLOWN MOTOR ENSUE BRAID VALOR BEGIN BEING HYMEN BLOKE RETRO ZEBRA SHALL MAYOR ABIDE BINGE PROUD HARDY PIVOT GRASS SNOWY SMOKY ROBIN BOARD WRING PRIZE WINCH AGLOW TESTY CHOIR LAUGH BUYER TACIT PITHY HUMAN MAGIC STASH DIRGE COVER LEAFY GAILY TOTAL GROUP PHONY GHOUL POUND LIMBO ITCHY SWAMI MAUVE LYMPH SMALL RIDGE COBRA GNOME ABHOR WRACK SHOVE SURER NOOSE BASAL SLASH BLEEP POUTY TAINT NUDGE VOMIT PENCE FLICK PESKY BLEED ZESTY BUILD FLOUR CROWD VAPOR OAKEN NIECE FRITZ PLUCK GLASS RABID GAYER THREE APHID HOVEL CREED FLAKY FLAKE BROKE EXACT LEAKY EBONY DRILL ETHER AWFUL SPILL SEWER MUCKY COWER CHIEF MOWER BIOME PERKY UTTER FORUM STAFF RADIO CAMEO GUARD COVEN OLIVE MOUND BLOWN NEWLY VENOM COLON STUNT SHUCK SHEEP OBESE FORGE MIDGE IMAGE DROVE HANDY HEFTY SCREE PUBIC KNEEL GLOBE VISOR RERUN REBEL ELOPE FRILL EVENT DRIVE NAIVE MACHO AGATE ROBOT SPUNK EGRET BLITZ SHAKY LEECH SPIKY SEVEN BLISS YOUTH HUMOR OTTER MAYBE ABATE SIEGE FLOCK CABAL WIDER KNIFE SAUNA TASTY WHINE NOMAD FROWN HEATH WISPY CHESS HOUND ADMIN JOINT WOMEN ELDER PAPER SWUNG SEGUE GUILD BROWN CRAZE QUILT WRECK PIECE THEFT EPOCH VALID GROWN WRONG AMONG BLOCK HAZEL FLUNK BOOST WEARY BONEY POUCH HEADY GLOVE JUNTA DEBUG FUDGE BANAL SAVOY DRAMA USUAL WIMPY HUMID BADLY TOXIN KNAVE ELBOW FLUNG HARSH ATTIC CACTI CURVY TIMID MILKY MASSE STOOD HONEY ROUGH WIDTH PARER SEEDY BADGE GROWL VEGAN GRAVY FLUKE LEERY UNCUT TWIST DUCHY STOOP DICEY THETA ENDOW UMBRA PRIVY AZURE TOPAZ GUIDE BOUND PEACE BLAZE PIXEL PUSHY CATCH KRILL ALPHA GREEN FOUND OCTET SALLY SPOOL FOYER GODLY RATTY SLOOP DUSKY PLUMP MOVER RECUR JAUNT GRAZE SIXTH VOWEL LILAC HATCH BROAD GONAD HYDRO OUGHT RACER MANGO DOPEY TRUTH CAGEY GROVE LADLE GRILL HENCE TALLY APNEA COLOR ILIAC BULKY CYBER CRIER MANGY VOILA ELIDE ZONAL JOUST REARM LASSO LUCKY REBAR FOAMY CELLO VERSE HOVER DIVER POSSE FISHY SEVER MUCUS WIDEN BEADY RULER DETOX BELIE CROSS STOUT ENEMY ALGAE EAGLE QUITE GAZER RURAL FROCK MORON NINTH WHISK PARKA WOULD GENRE EYING OVINE CHOKE RETRY CRAZY VINYL FIGHT RIPER RUGBY DEUCE ANNUL PICKY TWEED EXERT GIVER BUDGE CHEER DROLL ENEMA GOOSE SIGMA WAVER ROCKY GECKO SWEEP AGONY VIOLA LINEN TOXIC SHOCK SHOOT SERVE COMFY PINKY TIBIA SKILL GLAZE WRUNG ABBOT SOOTY DREAD SOOTH SLUSH BRAVO DROOL SIXTY TAUNT WOMAN QUIET EKING GLYPH STIFF STUFF TITHE WORDY PUREE PIPER ELUDE TABOO FELLA QUASH LUPUS COUGH HELIX RUPEE CANON SHOWY SPOON EDIFY LARVA MISSY GOURD MOCHA DOWNY UNIFY FENCE ISSUE NEWER SWILL FAVOR WAGON HONOR CHUNK BREED LOCAL RENEW VOICE EAGER LEGAL TOTEM SNOOP SLOSH SULLY BEECH WIGHT AFOOT HUSKY ERODE VAPID ROWDY RALLY EQUAL MOOSE REVEL QUALM GUESS HUMUS BINGO OMEGA LABEL NAVAL SQUAD VISIT TUTOR DOWRY LEAVE ABOVE FREED AHEAD REEDY SNIFF DOING GREED DOZEN ETUDE HAVOC WHEEL FLOSS KARMA WOUND QUOTE AWOKE BYLAW BEGET SPASM TROUT CIRCA AWAIT OPIUM WHINY OVARY ALLEY DROSS LEVER SUNNY HUMPH WEIGH DYING BRIBE CREEK GROSS SILLY NEEDY SCOOP WOKEN HELLO QUAIL CORER VIGOR VAGUE LIEGE MANIA EMBER INNER BAYOU AGAPE QUASI DINGY MERGE CHILL NEVER SENSE AGREE GAUDY BUTTE CATTY FRIAR CRACK DEFER GENIE LORRY NUTTY JUMPY DINGO DRIER JUNTO LIPID SIEVE GIVEN WOVEN PURER PAGAN USURP UPPER KOALA MYRRH DONOR FUNGI BIBLE SORRY ENNUI BLURB CINCH VALVE SNUFF ARDOR BORAX HUNKY GLOSS CHILI AWASH WINDY FIXER CLACK FUNKY LEDGE FLOOR BASIS FAUNA PROXY PUDGY KNEED APPLY DRIED RADII INANE TENET BEVEL PLAZA YOUNG AWARE CONIC WAIVE MAIZE AWARD ALOOF MECCA NYLON SQUIB RIDER HITCH ENVOY IONIC NERVE BOUGH MOVIE IDIOT CONDO UNDUE PETTY JUICE ALLOW WACKY AGAIN CANNY ROOMY JUMBO EMBED ABYSS CARRY CACHE PHOTO SKULL EJECT VOGUE PUPAL GAUZE VOUCH ALLOY LIBEL HOWDY DELVE UNZIP KNOLL SMASH SKULK DOGMA AROMA INDEX DWELL ESSAY DRYLY FATTY MOSSY FLAIL PUPIL AGORA DOUGH RUDER PRIOR ORDER ARBOR HUTCH PATTY MERRY PIQUE SEIZE PARRY ALIBI MARRY PUTTY CLIFF SALSA AUDIO RODEO CONCH WHACK CRICK KNACK TEDDY SWOON LOOPY CADDY HEAVY DITTO IVORY COVEY FROZE PENNY SUSHI TEETH WAXEN SPOOF BRIAR REVUE VIDEO QUERY AVAIL VENUE TAFFY MACAW BOXER BOOTH BERRY QUOTH GUMBO WHERE PAYEE BLOOM EQUIP SCOFF MAJOR DIGIT MANGA VYING CYNIC SAPPY ICILY GORGE ADAGE BAWDY HUNCH SWASH LOYAL ROTOR OWING DRYER CYCLE UDDER ODDER HEDGE ELEGY AMISS ODDLY MOODY GLOOM BROOM DALLY CURRY AVIAN COYLY ARMOR ROGER CLICK WRYLY GASSY KIOSK GEESE SHYLY BEEFY GROOM ICING OUTDO ARROW THIGH COMIC FANNY FEWER BELLY OCCUR FOLIO PULPY BOSSY RABBI BANJO TEPEE SKUNK DROOP COACH TODDY FOLLY BULLY AVOID DIODE BATTY ABACK FLOOD BLOOD HURRY BOOTY JOKER VILLA BOSOM AXION DOLLY DITTY GOUGE CIVIL FURRY KEBAB TIGHT HARRY ANNOY GAUGE GAWKY SWISH OXIDE DRUID RIGOR EVADE PROOF IGLOO FERRY QUOTA DANDY AGING HOLLY GAYLY HILLY LEGGY DULLY FEVER ENJOY CLOCK MAFIA ROWER AUGUR POLYP FUSSY HEAVE OFFAL BROOD CHEEK JUICY SPOOK DUMMY FULLY RIVER VODKA HUSSY MELEE MUDDY WOOER CROOK TABBY BUNNY UNDID BITTY FJORD LLAMA FUNNY JUDGE OUTGO ABBEY CHECK RUMOR QUARK PAPAL VERGE POOCH FIFTH AWAKE CHAFF FIFTY FILLY CROCK IDIOM JERKY OFFER CUBIC QUACK SWOOP BUXOM DILLY EPOXY IDYLL RIGID ROVER QUIRK RUDDY BILLY PENNE SAVVY KITTY EVERY EXILE INBOX CLUCK SHOOK CABBY UNION GOLLY KNOCK EXPEL FUROR EERIE WEAVE BELLE SKIFF BROOK GULLY BEZEL MODEM TWEET COUCH WOOLY EXCEL WITTY AXIAL DODGE GAFFE QUAKE GOING WORRY GUAVA RARER FUGUE LOWLY GUMMY GYPSY LOBBY COMMA PADDY VIXEN QUELL RAJAH WEDGE BLUFF SOGGY KHAKI GEEKY HIPPO FREER REFER WEEDY OZONE PYGMY LIVID HIPPY AMAZE MAMBO HAPPY AXIOM QUEER ANNEX NINJA AMASS FORGO GRUFF QUEEN JEWEL PUFFY WHICH MOTTO KINKY RADAR QUICK BONGO JELLY WILLY GOOEY WHOOP VIGIL ALLAY MINIM TOOTH BUDDY JETTY PIXIE GOOFY EVOKE CHICK ERROR ARRAY BAGGY MIMIC RAZOR GOODY CHUCK CHOCK QUILL PIGGY LEVEL BOOZE ASSAY PIZZA EMCEE TATTY SLYLY BIDDY GUPPY KNOWN FEMME BUGGY SHUSH GIDDY WOODY HOBBY FOGGY JOLLY SASSY DOWDY WIDOW TWIXT CACAO DODGY SISSY KAPPA MADAM JUROR OVOID NANNY VERVE WHIFF ONION MUMMY GAMMA MAGMA COCOA NINNY MAXIM AFFIX FLUFF DIZZY FUZZY BOOZY KAYAK MAMMY DADDY WOOZY FIZZY CIVIC PUPPY JIFFY BOOBY POPPY BOBBY VIVID QUEUE MAMMA JAZZY`.toUpperCase().split(/\s+/);
-const VALID=new Set([...WORDS,...EXTRA_WORDS]);const ANSWERS=EXTRA_WORDS; // Large five-letter answer pool; every new round draws independently.
-const KEYS=['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];let answer='',row=0,col=0,done=false,grid=[],stats=loadStats(),keyRanks={};
-const $=s=>document.querySelector(s),board=$('#board'),keyboard=$('#keyboard'),status=$('#status');
-function loadStats(){try{return JSON.parse(localStorage.getItem('wordloop.stats'))||{played:0,wins:0,streak:0,best:0,dist:[0,0,0,0,0,0]}}catch{return{played:0,wins:0,streak:0,best:0,dist:[0,0,0,0,0,0]}}}
-function saveStats(){localStorage.setItem('wordloop.stats',JSON.stringify(stats));$('#played').textContent=stats.played;$('#winrate').textContent=stats.played?Math.round(stats.wins/stats.played*100)+'%':'0%';$('#streak').textContent=stats.streak}
-function buildBoard(){board.innerHTML='';grid=[];for(let r=0;r<6;r++){const rowEl=document.createElement('div');rowEl.className='row';const cells=[];for(let c=0;c<5;c++){const t=document.createElement('div');t.className='tile';t.setAttribute('aria-label',`row ${r+1} letter ${c+1}`);rowEl.append(t);cells.push(t)}board.append(rowEl);grid.push(cells)}}
-function buildKeyboard(){keyboard.innerHTML='';KEYS.forEach((letters,i)=>{const line=document.createElement('div');line.className='keyrow';if(i===2)addKey(line,'ENTER','wide',submit);for(const l of letters)addKey(line,l,'',()=>type(l));if(i===2)addKey(line,'⌫','wide',backspace);keyboard.append(line)})}
-function addKey(parent,label,extra,fn){const b=document.createElement('button');b.className='key '+extra;b.textContent=label;b.setAttribute('aria-label',label==='⌫'?'Backspace':label);b.onclick=fn;parent.append(b)}
-function start(){answer=ANSWERS[Math.floor(Math.random()*ANSWERS.length)];row=0;col=0;done=false;keyRanks={};status.textContent='Ready when you are';$('#newGame').innerHTML='↻ &nbsp;New word';buildBoard();buildKeyboard();}
-function type(l){if(done||col>=5)return;grid[row][col].textContent=l;grid[row][col].classList.add('filled');col++}
-function backspace(){if(done||col===0)return;col--;grid[row][col].textContent='';grid[row][col].classList.remove('filled')}
-function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1700)}
-function submit(){if(done)return;if(col<5){toast('Need five letters');return}const guess=grid[row].map(t=>t.textContent).join('');if(!VALID.has(guess)){toast('That word isn’t in this little dictionary');return}const colors=Array(5).fill('absent'),remaining=answer.split('');for(let i=0;i<5;i++)if(guess[i]===answer[i]){colors[i]='correct';remaining[i]=null}for(let i=0;i<5;i++)if(colors[i]!=='correct'){const ix=remaining.indexOf(guess[i]);if(ix!==-1){colors[i]='present';remaining[ix]=null}}
-for(let i=0;i<5;i++){const cell=grid[row][i];setTimeout(()=>{cell.classList.add('flip');setTimeout(()=>{cell.classList.add(colors[i]);cell.classList.remove('flip');const rank={absent:1,present:2,correct:3}[colors[i]];if((keyRanks[guess[i]]||0)<rank){keyRanks[guess[i]]=rank;const key=[...keyboard.querySelectorAll('.key')].find(k=>k.textContent===guess[i]);if(key){key.classList.remove('absent','present','correct');key.classList.add(colors[i])}}},240)},i*180)}
-row++;col=0;if(guess===answer){done=true;stats.played++;stats.wins++;stats.streak++;stats.best=Math.max(stats.best,stats.streak);stats.dist[row-1]++;saveStats();status.textContent=['','Brilliant!','Lovely solve!','Well played!','Got it!','Just in time!','Last-guess hero!'][row];$('#newGame').innerHTML='↻ &nbsp;Play again';setTimeout(()=>showShare(row),1200)}else if(row===6){done=true;stats.played++;stats.streak=0;saveStats();status.textContent=`The word was ${answer}`;$('#newGame').innerHTML='↻ &nbsp;Try another';}else{status.textContent='Good guess — keep going';}}
-function showShare(tries){const squares=[];for(let r=0;r<tries;r++)squares.push(grid[r].map(c=>c.classList.contains('correct')?'🟩':c.classList.contains('present')?'🟨':'⬛').join(''));$('#shareText').textContent=`Wordloop · ${tries}/6`;$('#shareCard').textContent=`Wordloop ${tries}/6\n\n${squares.join('\n')}`;$('#share').showModal()}
-function handle(e){if(e.ctrlKey||e.metaKey||e.altKey||e.target.closest('button,dialog'))return;if(e.key==='Enter')submit();else if(e.key==='Backspace')backspace();else if(/^[a-z]$/i.test(e.key))type(e.key.toUpperCase())}
-document.addEventListener('keydown',handle);$('#newGame').onclick=start;$('#helpBtn').onclick=()=>$('#help').showModal();$('#statsBtn').onclick=()=>toast(`Best streak: ${stats.best}`);document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$('#'+b.dataset.close).close());$('#copyShare').onclick=async()=>{try{await navigator.clipboard.writeText($('#shareCard').textContent);toast('Result copied!');$('#share').close()}catch{toast('Copy isn’t available here')}};$('#share').addEventListener('click',e=>{if(e.target===$('#share'))$('#share').close()});saveStats();start();
-})();
-</script></body></html>
 
+/* Words that are fine to accept as guesses but not great as answers for a casual game. */
+const BLOCK=new Set('SEMEN HORNY PUBIC ENEMA FECAL URINE VOMIT GIPSY GYPSY FANNY HUSSY SISSY PANSY PADDY GONAD SPERM HYMEN RALPH TONGA CHINA WELSH DUTCH HARRY RANDY SALLY ROGER BILLY BOBBY TEDDY FRITZ'.split(' '));
+const VALID=new Set([...WORDS,...EXTRA_WORDS].filter(w=>w.length===5));
+const ANSWERS=[...new Set(EXTRA_WORDS)].filter(w=>/^[A-Z]{5}$/.test(w)&&!BLOCK.has(w));
+
+const KEYS=['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
+const RANK={absent:1,present:2,correct:3};
+const STATE_LABEL={correct:'correct spot',present:'in the word, wrong spot',absent:'not in the word'};
+const WIN_MSG=['','Brilliant!','Lovely solve!','Well played!','Got it!','Just in time!','Last-guess hero!'];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const board=$('#board'),keyboard=$('#keyboard'),statusEl=$('#status'),toastEl=$('#toast'),countdownEl=$('#countdown');
+const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- storage ---------- */
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+const blank=()=>({played:0,wins:0,streak:0,best:0,dist:[0,0,0,0,0,0],last:''});
+function loadStats(){
+  const s=store.get('wordloop.stats2',null);
+  if(s&&s.free&&s.daily)return s;
+  const old=store.get('wordloop.stats',null);
+  return{free:Object.assign(blank(),old||{}),daily:blank()};
+}
+let settings=Object.assign({theme:'auto',hard:false,sound:false,contrast:false},store.get('wordloop.settings',{}));
+let stats=loadStats();
+
+/* ---------- state ---------- */
+let G={mode:'free',answer:'',guesses:[],done:false,won:false,hint:null,date:''};
+let cur='',grid=[],busy=false;
+
+const keyOf=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const dayKey=()=>keyOf(new Date());
+const dailyIndex=()=>{const n=new Date();return Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(2026,0,1))/864e5)};
+function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+const dailyWord=()=>ANSWERS[hash('wordloop:'+dayKey())%ANSWERS.length];
+
+function freshFree(){
+  const recent=store.get('wordloop.recent',[]);let w,n=0;
+  do{w=ANSWERS[Math.floor(Math.random()*ANSWERS.length)]}while(recent.includes(w)&&++n<40);
+  store.set('wordloop.recent',[...recent,w].slice(-100));
+  return{answer:w,guesses:[],done:false,won:false,hint:null};
+}
+function loadGame(mode,forceNew){
+  let g;
+  if(mode==='daily'){
+    const s=store.get('wordloop.game.daily',null);
+    g=(s&&s.date===dayKey())?s:{date:dayKey(),guesses:[],done:false,won:false,hint:null};
+    g.answer=dailyWord();
+  }else{
+    const s=store.get('wordloop.game.free',null);
+    g=(!forceNew&&s&&ANSWERS.includes(s.answer))?s:freshFree();
+  }
+  G=Object.assign({mode,date:''},g);
+  G.mode=mode;cur='';busy=false;
+  persist();
+}
+function persist(){
+  const o={guesses:G.guesses,done:G.done,won:G.won,hint:G.hint};
+  if(G.mode==='daily'){o.date=G.date;store.set('wordloop.game.daily',o)}
+  else{o.answer=G.answer;store.set('wordloop.game.free',o)}
+}
+
+/* ---------- game logic ---------- */
+function evaluate(guess,answer){
+  const res=Array(5).fill('absent'),pool=answer.split('');
+  for(let i=0;i<5;i++)if(guess[i]===answer[i]){res[i]='correct';pool[i]=null}
+  for(let i=0;i<5;i++){
+    if(res[i]==='correct')continue;
+    const j=pool.indexOf(guess[i]);
+    if(j>-1){res[i]='present';pool[j]=null}
+  }
+  return res;
+}
+function hardCheck(g){
+  for(const prev of G.guesses){
+    const cols=evaluate(prev,G.answer);
+    for(let i=0;i<5;i++)if(cols[i]==='correct'&&g[i]!==prev[i])return `Letter ${i+1} must be ${prev[i]}`;
+    for(let i=0;i<5;i++)if(cols[i]==='present'&&!g.includes(prev[i]))return `Guess must contain ${prev[i]}`;
+  }
+  return '';
+}
+
+/* ---------- audio ---------- */
+let ac;
+function tone(f,d=.08,type='sine',v=.05,delay=0){
+  if(!settings.sound)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+delay;
+    o.type=type;o.frequency.value=f;
+    g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.01);g.gain.exponentialRampToValueAtTime(.0001,s+d);
+    o.connect(g).connect(ac.destination);o.start(s);o.stop(s+d+.03);
+  }catch{}
+}
+
+/* ---------- rendering ---------- */
+function label(t,r,c,ch,state){t.setAttribute('aria-label',`Row ${r+1}, letter ${c+1}, ${ch||'empty'}${state?', '+STATE_LABEL[state]:''}`)}
+function renderBoard(){
+  board.innerHTML='';grid=[];
+  for(let r=0;r<6;r++){
+    const rowEl=document.createElement('div');rowEl.className='row';rowEl.setAttribute('role','row');
+    const g=G.guesses[r],cols=g?evaluate(g,G.answer):null,cells=[];
+    for(let c=0;c<5;c++){
+      const t=document.createElement('div');t.className='tile';t.setAttribute('role','gridcell');
+      if(g){t.textContent=g[c];t.classList.add('filled',cols[c]);label(t,r,c,g[c],cols[c])}
+      else label(t,r,c,'',null);
+      rowEl.append(t);cells.push(t);
+    }
+    board.append(rowEl);grid.push(cells);
+  }
+  paintRow();
+}
+function paintRow(){
+  const r=G.guesses.length;
+  if(G.done||r>5)return;
+  for(let c=0;c<5;c++){
+    const t=grid[r][c],ch=cur[c]||'';
+    t.textContent=ch;t.classList.toggle('filled',!!ch);
+    const ghost=!ch&&G.hint&&G.hint.pos===c;
+    t.classList.toggle('ghost',!!ghost);
+    if(ghost)t.dataset.hint=G.answer[c];else delete t.dataset.hint;
+    label(t,r,c,ch,null);
+  }
+}
+function buildKeyboard(){
+  keyboard.innerHTML='';
+  KEYS.forEach((letters,i)=>{
+    const line=document.createElement('div');line.className='keyrow';
+    if(i===2)addKey(line,'ENTER','wide',submit,'Enter');
+    for(const l of letters){const b=addKey(line,l,'',()=>type(l),l);b.dataset.k=l}
+    if(i===2)addKey(line,'⌫','wide',backspace,'Backspace');
+    keyboard.append(line);
+  });
+}
+function addKey(parent,text,extra,fn,aria){
+  const b=document.createElement('button');
+  b.className=('key '+extra).trim();b.textContent=text;b.setAttribute('aria-label',aria);b.type='button';
+  b.addEventListener('click',()=>{fn();b.blur()});
+  parent.append(b);return b;
+}
+function refreshKeys(){
+  const ranks={};
+  G.guesses.forEach(g=>evaluate(g,G.answer).forEach((c,i)=>{if((ranks[g[i]]||0)<RANK[c])ranks[g[i]]=RANK[c]}));
+  const names=['','absent','present','correct'];
+  $$('.key[data-k]').forEach(k=>{
+    const r=ranks[k.dataset.k]||0;
+    k.classList.remove('absent','present','correct');
+    if(r)k.classList.add(names[r]);
+    k.setAttribute('aria-label',k.dataset.k+(r?', '+STATE_LABEL[names[r]]:''));
+  });
+}
+function setStatus(msg){statusEl.textContent=msg}
+const pct=s=>s.played?Math.round(s.wins/s.played*100)+'%':'0%';
+function renderSide(){
+  const s=stats[G.mode],daily=G.mode==='daily';
+  $('#played').textContent=s.played;$('#winrate').textContent=pct(s);$('#streak').textContent=s.streak;
+  $('#sideTitle').textContent=daily?'Daily streak':'Your streak';
+  $('#hintBtn').disabled=G.done||!!G.hint;
+  $('#hintBtn').textContent=G.hint?'Hint used':'Hint';
+  $('#shareBtn').hidden=!G.done;
+  $('#newGame').textContent=daily?'Play unlimited':(G.done?'Play again':'New word');
+  $('#sideNote').textContent=daily?'One shared word per day. Come back tomorrow for the next one.':'No daily limit, no account, no pressure. Your stats stay on this device.';
+  $('#modeFree').setAttribute('aria-pressed',!daily);$('#modeDaily').setAttribute('aria-pressed',daily);
+  $('#heroSub').textContent=daily?`Daily #${dailyIndex()+1} · one word, the same for everyone today.`:'Six guesses. A fresh five-letter word whenever you want.';
+  tick();
+}
+function renderAll(){
+  renderBoard();refreshKeys();renderSide();
+  if(G.done)finish(false);
+  else setStatus(G.guesses.length?`${6-G.guesses.length} guess${6-G.guesses.length===1?'':'es'} left`:'Ready when you are');
+}
+
+/* ---------- input ---------- */
+function pop(t){t.classList.remove('pop');void t.offsetWidth;t.classList.add('pop')}
+function type(l){
+  if(G.done||busy||cur.length>=5)return;
+  cur+=l;paintRow();pop(grid[G.guesses.length][cur.length-1]);tone(520,.04,'triangle',.03);
+}
+function backspace(){if(G.done||busy||!cur)return;cur=cur.slice(0,-1);paintRow()}
+let toastT;
+function toast(msg,ms=1800){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),ms)}
+function shake(){
+  const row=board.children[G.guesses.length];if(!row)return;
+  row.classList.remove('shake');void row.offsetWidth;row.classList.add('shake');
+  setTimeout(()=>row.classList.remove('shake'),500);tone(150,.18,'sawtooth',.04);
+}
+function reveal(r,colors,done){
+  const step=reduced()?0:260,flipT=reduced()?0:250;
+  colors.forEach((st,i)=>setTimeout(()=>{
+    const t=grid[r][i];t.classList.add('flip');
+    tone({correct:700,present:540,absent:340}[st],.12,'sine',.05);
+    setTimeout(()=>{t.classList.add(st);label(t,r,i,t.textContent,st)},flipT);
+    setTimeout(()=>t.classList.remove('flip'),flipT*2+30);
+  },i*step));
+  setTimeout(done,4*step+flipT*2+80);
+}
+function submit(){
+  if(G.done||busy)return;
+  if(cur.length<5){shake();toast('Need five letters');return}
+  if(!VALID.has(cur)){shake();toast('Not in the word list');return}
+  if(settings.hard){const err=hardCheck(cur);if(err){shake();toast(err);return}}
+  const guess=cur,colors=evaluate(guess,G.answer),r=G.guesses.length;
+  G.guesses.push(guess);cur='';
+  const won=guess===G.answer,lost=!won&&G.guesses.length===6;
+  if(won||lost){G.done=true;G.won=won;updateStats()}
+  persist();
+  busy=true;
+  reveal(r,colors,()=>{
+    refreshKeys();busy=false;
+    if(G.done)finish(true);
+    else{const left=6-G.guesses.length;setStatus(`${left} guess${left===1?'':'es'} left`);paintRow();renderSide()}
+  });
+}
+function updateStats(){
+  const s=stats[G.mode];s.played++;
+  if(G.won){
+    s.wins++;s.dist[G.guesses.length-1]++;
+    if(G.mode==='daily'){const y=new Date();y.setDate(y.getDate()-1);s.streak=s.last===keyOf(y)?s.streak+1:1}
+    else s.streak++;
+    s.best=Math.max(s.best,s.streak);
+  }else s.streak=0;
+  if(G.mode==='daily')s.last=G.date;
+  store.set('wordloop.stats2',stats);
+}
+function finish(fresh){
+  renderSide();
+  if(G.won){
+    setStatus(WIN_MSG[G.guesses.length]);
+    if(fresh){
+      grid[G.guesses.length-1].forEach((t,i)=>{t.style.setProperty('--i',i);t.classList.add('bounce')});
+      confetti();[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.05,i*.1));
+      setTimeout(showShare,1500);
+    }
+  }else{
+    setStatus(`The word was ${G.answer}`);
+    if(fresh){tone(196,.35,'sawtooth',.04);setTimeout(showShare,1000)}
+  }
+}
+function confetti(){
+  if(reduced())return;
+  const colors=['var(--green)','var(--gold)','#d9d4c0','#8cc79a'],box=document.createElement('div');
+  box.className='confetti';
+  for(let i=0;i<54;i++){
+    const p=document.createElement('i');
+    p.style.cssText=`left:${Math.random()*100}%;background:${colors[i%4]};width:${6+Math.random()*6}px;height:${8+Math.random()*8}px;animation-delay:${Math.random()*.5}s;animation-duration:${1.7+Math.random()*1.5}s;--dx:${(Math.random()-.5)*180}px;--rot:${Math.random()*720}deg`;
+    box.append(p);
+  }
+  document.body.append(box);setTimeout(()=>box.remove(),3800);
+}
+
+/* ---------- hint ---------- */
+function useHint(){
+  if(G.done||busy)return;
+  if(G.hint){toast('You already used this round’s hint');return}
+  const solved=new Set();
+  G.guesses.forEach(g=>evaluate(g,G.answer).forEach((c,i)=>{if(c==='correct')solved.add(i)}));
+  const open=[0,1,2,3,4].filter(i=>!solved.has(i));
+  const pool=open.length?open:[0,1,2,3,4];
+  G.hint={pos:pool[Math.floor(Math.random()*pool.length)]};
+  persist();paintRow();renderSide();
+  toast(`Hint: letter ${G.hint.pos+1} is ${G.answer[G.hint.pos]}`,2600);
+}
+
+/* ---------- sharing ---------- */
+function shareText(){
+  const E=settings.contrast?{correct:'🟧',present:'🟦',absent:'⬛'}:{correct:'🟩',present:'🟨',absent:'⬛'};
+  const rows=G.guesses.map(g=>evaluate(g,G.answer).map(c=>E[c]).join(''));
+  const score=G.won?G.guesses.length:'X';
+  const head=G.mode==='daily'?`Wordloop Daily #${dailyIndex()+1} ${score}/6`:`Wordloop ${score}/6`;
+  return head+(G.hint?' 💡':'')+'\n\n'+rows.join('\n')+'\n\n'+location.origin;
+}
+function showShare(){
+  if(!G.done)return;
+  $('#shareHead').textContent=G.won?`Solved in ${G.guesses.length}/6`:'Better luck next time';
+  $('#shareText').textContent=G.won?WIN_MSG[G.guesses.length]:`The word was ${G.answer}.`;
+  $('#shareCard').textContent=shareText();
+  $('#nativeShare').hidden=!navigator.share;
+  $('#againBtn').textContent=G.mode==='daily'?'Try unlimited mode':'Play another word';
+  if(!$('#share').open)$('#share').showModal();
+}
+async function copyText(text){
+  try{await navigator.clipboard.writeText(text);return true}
+  catch{
+    try{const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.append(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return ok}
+    catch{return false}
+  }
+}
+
+/* ---------- modes, stats, settings ---------- */
+function setMode(mode,forceNew){
+  if(mode===G.mode&&!forceNew)return;
+  if(mode!==G.mode)persist();
+  loadGame(mode,forceNew);store.set('wordloop.mode',mode);renderAll();
+}
+function newRound(){
+  if(G.mode==='daily'){setMode('free');return}
+  if(!G.done&&G.guesses.length>=2&&!confirm('Skip this word and start a new one?'))return;
+  setMode('free',true);
+}
+function openStats(){
+  const s=stats[G.mode],max=Math.max(1,...s.dist);
+  $('#statsTitle').textContent=G.mode==='daily'?'Daily stats':'Unlimited stats';
+  $('#statsGrid').innerHTML=[['Played',s.played],['Win %',pct(s).replace('%','')],['Streak',s.streak],['Best',s.best]].map(([l,v])=>`<div><strong>${v}</strong><span>${l}</span></div>`).join('');
+  $('#dist').innerHTML=s.dist.map((n,i)=>`<div class="bar${G.done&&G.won&&G.guesses.length===i+1?' now':''}"><b>${i+1}</b><div><i style="width:${n/max*100}%">${n}</i></div></div>`).join('');
+  $('#stats').showModal();
+}
+const mq=matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(){
+  const dark=settings.theme==='dark'||(settings.theme==='auto'&&mq.matches);
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  document.documentElement.classList.toggle('hc',settings.contrast);
+  $('meta[name=theme-color]').content=dark?'#111611':'#f6f5ef';
+}
+function saveSettings(){store.set('wordloop.settings',settings);applyTheme();syncSettings()}
+function syncSettings(){
+  $$('[data-theme-set]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.themeSet===settings.theme));
+  $('#hardSw').setAttribute('aria-checked',settings.hard);
+  $('#contrastSw').setAttribute('aria-checked',settings.contrast);
+  $('#soundSw').setAttribute('aria-checked',settings.sound);
+}
+function tick(){
+  if(G.mode==='daily'){
+    if(G.date!==dayKey()){loadGame('daily');renderAll();return}
+    if(G.done){
+      const n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);
+      const s=Math.max(0,Math.round((m-n)/1000));
+      countdownEl.textContent='Next daily word in '+[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,'0')).join(':');
+      countdownEl.hidden=false;return;
+    }
+  }
+  countdownEl.hidden=true;
+}
+
+/* ---------- wiring ---------- */
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||document.querySelector('dialog[open]'))return;
+  if(e.key==='Enter'){if(e.target.closest&&e.target.closest('button'))return;e.preventDefault();submit()}
+  else if(e.key==='Backspace')backspace();
+  else if(/^[a-z]$/i.test(e.key))type(e.key.toUpperCase());
+});
+/* After a mouse/touch click, hand focus back to the page so Enter submits a guess instead of re-pressing the button.
+   Keyboard-activated clicks (detail 0) keep focus so tabbing still works. */
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(b&&e.detail>0&&!b.closest('dialog'))b.blur()});
+$$('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('#newGame').addEventListener('click',newRound);
+$('#hintBtn').addEventListener('click',useHint);
+$('#shareBtn').addEventListener('click',showShare);
+$('#helpBtn').addEventListener('click',()=>$('#help').showModal());
+$('#statsBtn').addEventListener('click',openStats);
+$('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').showModal()});
+$$('[data-close]').forEach(b=>b.addEventListener('click',()=>$('#'+b.dataset.close).close()));
+$$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+$('#copyShare').addEventListener('click',async()=>{if(await copyText($('#shareCard').textContent)){toast('Result copied!');$('#share').close()}else toast('Copy isn’t available here')});
+$('#nativeShare').addEventListener('click',async()=>{try{await navigator.share({text:$('#shareCard').textContent})}catch{}});
+$('#againBtn').addEventListener('click',()=>{$('#share').close();if(G.mode==='daily')setMode('free');else setMode('free',true)});
+$('#resetStats').addEventListener('click',()=>{if(confirm('Reset your '+(G.mode==='daily'?'daily':'unlimited')+' stats?')){stats[G.mode]=blank();store.set('wordloop.stats2',stats);renderSide();openStats()}});
+$$('[data-theme-set]').forEach(b=>b.addEventListener('click',()=>{settings.theme=b.dataset.themeSet;saveSettings()}));
+$('#hardSw').addEventListener('click',()=>{
+  if(!settings.hard&&!G.done&&G.guesses.length){toast('Hard mode can only start at the beginning of a round');return}
+  settings.hard=!settings.hard;saveSettings();
+});
+$('#contrastSw').addEventListener('click',()=>{settings.contrast=!settings.contrast;saveSettings()});
+$('#soundSw').addEventListener('click',()=>{settings.sound=!settings.sound;saveSettings();tone(660,.12,'triangle',.06)});
+(mq.addEventListener?mq.addEventListener.bind(mq,'change'):mq.addListener.bind(mq))(applyTheme);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
+
+applyTheme();syncSettings();buildKeyboard();
+loadGame(store.get('wordloop.mode','free'));
+renderAll();
+setInterval(tick,1000);
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+})();
+</script>
+</body>
+</html>
