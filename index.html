@@ -210,6 +210,76 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 .seg.small button{padding:6px 12px;font-size:12px}
 .linkbtn{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer;padding:8px 0 0}
 
+
+/* Poople daily word ladder */
+body.poople-mode .hero,body.poople-mode main.game{display:none}
+body.poople-mode .room-badge{display:none}
+.poople-view{padding:24px 0 4px}
+.poople-head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:22px;margin-bottom:20px}
+.poople-back{width:auto;white-space:nowrap}
+.poople-heading{text-align:center}
+.poople-kicker{margin:0 0 5px;color:var(--green);font:700 10px 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
+.poople-heading h2{margin:0;font-size:26px;letter-spacing:-.9px}
+.poople-heading p:last-child{margin:6px 0 0;color:var(--muted);font-size:13px}
+.poople-goal{display:flex;gap:4px;font:700 17px 'DM Mono',monospace}
+.poople-goal span{color:var(--muted)}
+.poople-layout{display:grid;grid-template-columns:minmax(0,1fr) 236px;gap:24px;align-items:start}
+.poople-play,.poople-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.poople-play{padding:18px}
+.poople-instructions{font-size:12.5px;color:var(--muted);line-height:1.5;text-align:center;margin:0 0 14px}
+.poople-rows{display:grid;gap:7px;max-height:330px;overflow:auto;padding:4px 6px;overscroll-behavior:contain}
+.poople-row{display:flex;justify-content:center;gap:6px}
+.poople-row-label{width:36px;display:grid;place-items:center;color:var(--muted);font:500 10px 'DM Mono',monospace}
+.poople-tile{width:clamp(42px,11vw,54px);height:clamp(42px,11vw,54px);display:grid;place-items:center;border:2px solid var(--tile-line);border-radius:10px;background:var(--surface2);font:700 23px 'DM Mono',monospace;color:var(--ink)}
+.poople-tile.p-filled{border-color:var(--tile-filled);background:var(--surface)}
+.poople-tile.p-match{background:#a57950;border-color:#a57950;color:white}
+.poople-tile.p-letter{background:#d4b66c;border-color:#d4b66c;color:#fff}
+:root[data-theme=dark] .poople-tile.p-match{background:#986f48;border-color:#986f48}
+:root[data-theme=dark] .poople-tile.p-letter{background:#a98b45;border-color:#a98b45}
+.poople-row.current .poople-row-label{color:var(--green);font-weight:700}
+.poople-status{min-height:32px;display:grid;place-items:center;text-align:center;font-size:12.5px;font-weight:700;color:var(--green);padding:5px}
+.poople-keyboard{max-width:470px;margin:8px auto 0;gap:6px}
+.poople-keyboard .key{height:44px;font-size:12px}
+.poople-keyboard .key.wide{min-width:54px}
+.poople-actions{display:flex;gap:8px;margin-top:12px}
+.poople-actions .btn{flex:1}
+.poople-card{padding:18px}
+.poople-card h3,.poople-card h4{margin:0 0 12px;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.poople-par{border:1px solid var(--line);border-radius:12px;background:var(--surface2);padding:13px;text-align:center;font-size:12px;color:var(--muted)}
+.poople-par strong{font:700 24px 'DM Mono',monospace;color:var(--ink);margin-left:6px}
+.poople-par span{margin-left:3px}
+.poople-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;text-align:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.poople-stats strong{display:block;font-size:20px;letter-spacing:-.5px}
+.poople-stats span{font-size:9px;color:var(--muted)}
+.poople-card h4{margin:14px 0 8px}
+.poople-dist{display:grid;gap:4px}
+.poople-dist-row{display:grid;grid-template-columns:28px 1fr;align-items:center;gap:6px;font-size:10px;color:var(--muted)}
+.poople-dist-track{height:17px;background:var(--surface2);border-radius:5px;overflow:hidden}
+.poople-dist-bar{height:100%;min-width:0;display:flex;align-items:center;justify-content:flex-end;padding:0 5px;background:var(--gray);border-radius:5px;color:#fff;font-weight:700;font-style:normal}
+.poople-dist-row.latest .poople-dist-bar{background:var(--green)}
+.poople-note{font-size:10.5px;line-height:1.5;color:var(--muted);margin:14px 0 0}
+.poople-path{color:var(--muted);font-size:12px;text-align:center;line-height:1.6;margin:8px 0}
+@media(max-width:620px){
+  .poople-view{padding-top:14px}
+  .poople-head{grid-template-columns:auto 1fr;gap:10px;margin-bottom:12px}
+  .poople-back{font-size:11px;padding:9px 10px}
+  .poople-heading{text-align:left}
+  .poople-heading h2{font-size:20px}
+  .poople-heading p:last-child{font-size:11px}
+  .poople-goal{display:none}
+  .poople-layout{grid-template-columns:1fr;gap:12px}
+  .poople-play{padding:12px}
+  .poople-rows{max-height:270px;gap:5px}
+  .poople-row{gap:5px}
+  .poople-tile{width:clamp(40px,12vw,50px);height:clamp(40px,12vw,50px);font-size:20px;border-radius:8px}
+  .poople-keyboard{margin-top:4px;gap:5px}
+  .poople-keyboard .key{height:42px;min-width:0;padding:0 2px}
+  .poople-keyboard .key.wide{min-width:46px;font-size:9px}
+  .poople-card{padding:14px 16px}
+  .poople-card h3{margin-bottom:8px}
+  .poople-note{display:none}
+}
+
 @media(max-width:620px){
   .wrap{padding:14px 12px 24px}
   .top{padding-bottom:12px}
@@ -251,7 +321,7 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   <header class="top">
     <div class="brand">
       <div class="logo" aria-hidden="true"><svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M18.2 18.2 25 25" stroke-width="3.4"/><text x="12" y="15.3" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" font-weight="700" fill="#fff" stroke="none">W</text></svg></div>
-      <div><h1>Word Detective</h1><p>Every word is a case.</p></div>
+      <div><h1 id="brandTitle">Word Detective</h1><p id="brandTagline">Every word is a case.</p></div>
     </div>
     <div class="top-actions">
       <button class="room-badge" id="roomBadge" aria-label="Copy room code" title="Copy room code" hidden>ROOM <span id="roomBadgeCode"></span></button>
@@ -281,11 +351,11 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
         <strong>Word Detective</strong>
         <span>Solve five-letter cases alone or with friends.</span>
       </button>
-      <a class="start-option" id="choosePoople" href="https://poople.io/" target="_blank" rel="noopener noreferrer" aria-label="Play Poople at poople.io, opens in a new tab">
+      <button class="start-option" id="choosePoople" aria-label="Play the Poople word ladder game">
         <span class="start-icon" aria-hidden="true">P</span>
         <strong>Poople</strong>
-        <span>Open the official daily word game at poople.io ↗</span>
-      </a>
+        <span>Build a word ladder to POOP in this app.</span>
+      </button>
     </div>
   </div>
 </dialog>
@@ -355,7 +425,43 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
     </aside>
   </main>
 
-  <footer class="foot">A little word mystery for your next coffee break.</footer>
+  <main class="poople-view" id="poopleView" hidden>
+    <div class="poople-head">
+      <button class="btn ghost poople-back" id="backToGames">← All games</button>
+      <div class="poople-heading">
+        <p class="poople-kicker">Daily word ladder <span id="poopleNumber"></span></p>
+        <h2>Make your way to POOP</h2>
+        <p>Start at <strong id="poopleStart"></strong>. Change one letter at a time.</p>
+      </div>
+      <div class="poople-goal" aria-label="Goal word POOP">P<span>O</span><span>O</span>P</div>
+    </div>
+    <div class="poople-layout">
+      <section class="poople-play" aria-label="Poople puzzle">
+        <p class="poople-instructions">Each move must be a four-letter word. Can you solve today’s ladder in fewer moves than par?</p>
+        <div class="poople-rows" id="poopleRows" role="log" aria-label="Your word ladder" aria-live="polite"></div>
+        <div class="poople-status" id="poopleStatus" role="status" aria-live="polite"></div>
+        <div class="keyboard poople-keyboard" id="poopleKeyboard" aria-label="Poople on-screen keyboard"></div>
+        <div class="poople-actions">
+          <button class="btn ghost" id="poopleShare" hidden>Share result</button>
+          <button class="btn ghost" id="poopleShowPath" hidden>Show shortest path</button>
+        </div>
+      </section>
+      <aside class="poople-card">
+        <h3>Today’s challenge</h3>
+        <div class="poople-par">Par <strong id="pooplePar">—</strong> <span>moves</span></div>
+        <div class="poople-stats">
+          <div><strong id="poopleWins">0</strong><span>solved</span></div>
+          <div><strong id="poopleAverage">0</strong><span>avg. extra</span></div>
+          <div><strong id="poopleStreak">0</strong><span>streak</span></div>
+        </div>
+        <h4>Extra moves</h4>
+        <div class="poople-dist" id="poopleDistribution"></div>
+        <p class="poople-note">Your puzzle and stats are saved on this device. A new starting word arrives each day.</p>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="foot" id="footerText">A little word mystery for your next coffee break.</footer>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="assertive"></div>
@@ -436,8 +542,23 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   </div>
 </div></dialog>
 
-<noscript><p style="text-align:center;padding:24px">Word Detective needs JavaScript to run.</p></noscript>
+<dialog id="poopleHelp"><div class="dlg">
+  <div class="modalhead"><h2>How to play Poople</h2><button class="close" data-close="poopleHelp" aria-label="Close">×</button></div>
+  <p class="modalcopy">The goal is <b>POOP</b>. Starting from the daily four-letter word, make a chain of real words by changing exactly one letter per move.</p>
+  <ul class="tips"><li>Use the keyboard or tap the on-screen keys, then press Enter.</li><li>Brown tiles are in the right position in POOP; gold tiles are letters used in POOP in another position.</li><li>There is no move limit. Try to solve in par or fewer moves.</li></ul>
+</div></dialog>
 
+<dialog id="poopleStats"><div class="dlg">
+  <div class="modalhead"><h2>Poople stats</h2><button class="close" data-close="poopleStats" aria-label="Close">×</button></div>
+  <div class="statsgrid" id="poopleStatsGrid"></div>
+  <h3 class="modalcopy" style="margin:0 0 8px;font-weight:700;color:var(--ink)">Extra moves distribution</h3>
+  <div class="dist" id="poopleStatsDist"></div>
+  <button class="linkbtn" id="resetPoopleStats">Reset Poople stats</button>
+</div></dialog>
+
+<noscript><p style="text-align:center;padding:24px">Word Detective and Poople need JavaScript to run.</p></noscript>
+
+<script src="./poople-words.js"></script>
 <script>
 (()=>{'use strict';
 const WORDS=`about above abuse actor acute admit adopt adult after again agent agree ahead alarm album alert alike alive allow alone along alter among anger angle angry apart apple apply arena argue arise armed army aside asset audio audit avoid award aware badly baker bases basic beach began begin being below bench berry birth black blame blank blast blend bless blind block blood board boast bonus boost booth bound brain brand brave bread break breed brief bring broad broke brown brush build bunch buyer cable carry catch cause chain chair chart chase cheap check chest chief child china civil claim class clean clear clerk click climb clock close cloth cloud coach coast could count court cover craft crash cream crime cross crowd crown curve cycle daily dance dealt death debut delay depth doing doubt dozen draft drama dream dress drink drive earth eight elite empty enemy enjoy enter entry equal error event every exact exist extra faith false fancy fault favor feast fence fewer fiber field fifth fifty fight final first flame flash fleet floor flour focus force frame frank fraud fresh front fruit fully funny giant given glass globe glory going grace grade grand grant grass great green gross group grown guard guess guest guide habit happy heart heavy hence honey honor horse hotel house human humor ideal image imply index inner input issue ivory jacket jewel joint judge juice knife known label labor large laser later laugh layer learn least leave legal level light limit liquid listen little liver local logic loose lower lucky lunch luxury maybe mayor meant media metal might minor mixed model money month moral motor mount mouse mouth movie music needs never newly night noise north noted novel nurse occur ocean offer often order other ought paint panel paper party peace phase phone photo piano piece pilot pitch place plain plane plant plate point pound power press price pride prime print prior prize proof proud prove queen quick quiet quite radio raise range rapid ratio reach react ready refer right rival river rough round route royal rural scale scene scope score sense serve seven shall shape share sharp sheet shelf shell shift shine shirt shock shoot short shown sight since sixth sixty sized skill sleep slide small smart smile smoke solid solve sorry sound south space spare speak speed spend spent split sport staff stage stake stand start state steam steel stick still stock stone stood store storm story strip study stuff style sugar suite super sweet table taken taste teach teeth tempo thank their theme there these thick thing think third those three threw throw tight times tired title today topic total touch tough tower trace track trade train treat trend trial tribe trick tried truck truly trust truth twice uncle under union unity until upper urban usage usual valid value video visit vital voice waste watch water wheel where which while white whole whose woman women world worry worse worst worth would write wrong wrote yield young`.toUpperCase().split(/\s+/);
@@ -1213,9 +1334,61 @@ function tick(){
   countdownEl.hidden=true;
 }
 
+/* ---------- Poople daily word ladder ---------- */
+const POOP='POOP';
+const POOPLE_WORDS=new Set([...(window.POOPLE_WORDS||[])].map(w=>String(w).toUpperCase()).filter(w=>/^[A-Z]{4}$/.test(w)));
+[POOP,'CASH','GENE','GONE','GORE','PORE','POPE','COOT','COOP','CAST','COST'].forEach(w=>POOPLE_WORDS.add(w));
+const poopleBuckets=new Map();
+for(const w of POOPLE_WORDS){for(let i=0;i<4;i++){const key=w.slice(0,i)+'_'+w.slice(i+1);if(!poopleBuckets.has(key))poopleBuckets.set(key,[]);poopleBuckets.get(key).push(w)}}
+function poopleNeighbors(word){const out=new Set();for(let i=0;i<4;i++)for(const next of poopleBuckets.get(word.slice(0,i)+'_'+word.slice(i+1))||[])if(next!==word)out.add(next);return out}
+const poopleDistance=new Map([[POOP,0]]),poopleQueue=[POOP];
+for(let i=0;i<poopleQueue.length;i++){const w=poopleQueue[i];for(const n of poopleNeighbors(w))if(!poopleDistance.has(n)){poopleDistance.set(n,poopleDistance.get(w)+1);poopleQueue.push(n)}}
+const POOPLE_STARTS='CASH GENE FOOD WORD COLD WARM GAME BARK BAKE BELL FALL MATE LOVE HOPE ROAD FISH JUMP READ CARD FARM COAT RING BIRD PINK RAIN TIME BOOK SHIP FROG PLAY TREE YEAR HELP HAND HEAD WALK TALK WORK HOME BALL SING SONG WIND WAVE BEAR CHAT NOTE STAR DARK FAST CAST ROCK LAMP FLAG CLAY BLUE GOLD GATE MILE FACE LINE PAST MIND TONE LATE CARE NEAR LEAF SEAT FIRE FINE HOLD LIFT MORE WIDE'.split(' ').filter((w,i,a)=>a.indexOf(w)===i&&POOPLE_WORDS.has(w)&&poopleDistance.has(w)&&poopleDistance.get(w)>=3&&poopleDistance.get(w)<=7);
+const P={active:false,number:0,start:'',par:0,guesses:[],current:'',done:false,won:false,recorded:false,showPath:false,stats:null};
+const blankPoopleStats=()=>({wins:0,extraTotal:0,streak:0,best:0,lastWin:'',dist:Array(7).fill(0)});
+function poopleStats(){const s=Object.assign(blankPoopleStats(),store.get('wordloop.poople.stats',{}));s.dist=Array.isArray(s.dist)?Array.from({length:7},(_,i)=>Number(s.dist[i])||0):Array(7).fill(0);return s}
+function poopleDaily(){const [y,m,d]=dayKey().split('-').map(Number),today=Date.UTC(y,m-1,d),anchor=Date.UTC(2026,9,22),offset=Math.floor((today-anchor)/86400000),idx=((offset%POOPLE_STARTS.length)+POOPLE_STARTS.length)%POOPLE_STARTS.length;return{offset,number:434+offset,start:POOPLE_STARTS[idx]||'GENE'}}
+function oneLetterApart(a,b){let diff=0;for(let i=0;i<4;i++)if(a[i]!==b[i]&&++diff>1)return false;return diff===1}
+function poopleSave(){store.set('wordloop.poople.game',{date:dayKey(),number:P.number,start:P.start,guesses:P.guesses,done:P.done,won:P.won,recorded:P.recorded})}
+function loadPooplePuzzle(){
+  const daily=poopleDaily(),saved=store.get('wordloop.poople.game',null);P.number=daily.number;P.start=daily.start;P.par=poopleDistance.get(P.start)||0;P.guesses=[];P.current='';P.done=false;P.won=false;P.recorded=false;P.showPath=false;P.stats=poopleStats();
+  if(saved&&saved.date===dayKey()&&saved.number===P.number&&saved.start===P.start){let prev=P.start;for(const raw of Array.isArray(saved.guesses)?saved.guesses:[]){const w=String(raw).toUpperCase();if(!POOPLE_WORDS.has(w)||!oneLetterApart(prev,w))break;P.guesses.push(w);prev=w;if(w===POOP)break}P.won=P.guesses.at(-1)===POOP;P.done=P.won;P.recorded=!!saved.recorded&&P.won}
+  $('#poopleNumber').textContent='#'+P.number;$('#poopleStart').textContent=P.start;$('#pooplePar').textContent=P.par;poopleRender();poopleStatsRender();
+}
+function poopleMakeRow(word,label,isCurrent){const row=document.createElement('div');row.className='poople-row'+(isCurrent?' current':'');const number=document.createElement('span');number.className='poople-row-label';number.textContent=isCurrent?'…':label;row.append(number);for(let i=0;i<4;i++){const tile=document.createElement('span'),ch=word[i]||'';tile.className='poople-tile'+(ch?' p-filled':'');tile.textContent=ch;if(ch&&ch===POOP[i])tile.classList.add('p-match');else if(ch&&POOP.includes(ch))tile.classList.add('p-letter');tile.setAttribute('aria-label',`Letter ${i+1}: ${ch||'empty'}`);row.append(tile)}return row}
+function poopleRender(){
+  const rows=$('#poopleRows');rows.replaceChildren();rows.append(poopleMakeRow(P.start,'START',false));P.guesses.forEach((w,i)=>rows.append(poopleMakeRow(w,String(i+1).padStart(2,'0'),false)));if(!P.done)rows.append(poopleMakeRow(P.current,'NEXT',true));rows.scrollTop=rows.scrollHeight;
+  $('#poopleStatus').textContent=P.won?`Solved in ${P.guesses.length} move${P.guesses.length===1?'':'s'} · par ${P.par}.`:`${P.guesses.length} move${P.guesses.length===1?'':'s'} · par ${P.par}`;
+  $('#poopleShare').hidden=!P.won;$('#poopleShowPath').hidden=!P.won;$$('[data-poople-key]').forEach(b=>b.disabled=P.done);
+  if(P.won&&P.showPath){let p=$('#poopleShortestPath');if(!p){p=document.createElement('p');p.id='poopleShortestPath';p.className='poople-path';$('#poopleRows').after(p)}p.textContent='Shortest path: '+pooplePath(P.start).join(' → ')}else{const p=$('#poopleShortestPath');if(p)p.remove()}
+}
+function pooplePath(start){const path=[start];let w=start;while(w!==POOP){const d=poopleDistance.get(w);const next=[...poopleNeighbors(w)].filter(n=>poopleDistance.get(n)===d-1).sort()[0];if(!next)break;path.push(next);w=next}return path}
+function poopleType(letter){if(P.done||P.current.length>=4)return;P.current+=letter.toUpperCase();poopleRender()}
+function poopleBackspace(){if(P.done||!P.current)return;P.current=P.current.slice(0,-1);poopleRender()}
+function poopleKey(key){if(P.done)return;if(key==='ENTER'){poopleSubmit();return}if(key==='BACK'){poopleBackspace();return}if(/^[A-Z]$/.test(key))poopleType(key)}
+function buildPoopleKeyboard(){const root=$('#poopleKeyboard');root.replaceChildren();KEYS.forEach((letters,i)=>{const line=document.createElement('div');line.className='keyrow';if(i===2)addPoopleKey(line,'ENTER','wide');for(const ch of letters)addPoopleKey(line,ch,'');if(i===2)addPoopleKey(line,'⌫','wide','BACK');root.append(line)})}
+function addPoopleKey(parent,label,extra,key=label){const b=document.createElement('button');b.type='button';b.className=('key '+extra).trim();b.textContent=label;b.setAttribute('aria-label',key==='ENTER'?'Enter':key==='BACK'?'Backspace':key);b.dataset.poopleKey=key;b.addEventListener('click',()=>{poopleKey(key);b.blur()});parent.append(b)}
+function poopleRecordWin(){if(P.recorded)return;const today=dayKey(),s=P.stats||poopleStats(),extra=Math.max(0,P.guesses.length-P.par);s.wins++;s.extraTotal+=extra;s.dist[Math.min(6,extra)]++;if(s.lastWin===today){/* already credited today */s.wins--;s.extraTotal-=extra;s.dist[Math.min(6,extra)]--}else{const [y,m,d]=today.split('-').map(Number),yesterday=new Date(Date.UTC(y,m-1,d-1)).toISOString().slice(0,10);s.streak=s.lastWin===yesterday?s.streak+1:1;s.best=Math.max(s.best,s.streak);s.lastWin=today}P.stats=s;P.recorded=true;store.set('wordloop.poople.stats',s)}
+function poopleSubmit(){if(P.done)return;if(P.current.length!==4){toast('Enter a four-letter word');return}const guess=P.current;if(!POOPLE_WORDS.has(guess)){toast('That word is not in the built-in word list');return}const previous=P.guesses.at(-1)||P.start;if(!oneLetterApart(previous,guess)){toast('Change exactly one letter');return}P.guesses.push(guess);P.current='';if(guess===POOP){P.done=true;P.won=true;poopleRecordWin()}poopleSave();poopleRender();poopleStatsRender()}
+function poopleShareText(){const extra=Math.max(0,P.guesses.length-P.par),lines=P.guesses.map(w=>[...w].map((ch,i)=>ch===POOP[i]?'🟫':POOP.includes(ch)?'🟨':'⬜').join('')).join('\n');return`Poople #${P.number} · ${P.guesses.length} moves (par ${P.par}, +${extra})\n\n${lines}`}
+function poopleStatsRender(){const s=P.stats||poopleStats();$('#poopleWins').textContent=s.wins;$('#poopleAverage').textContent=s.wins?(s.extraTotal/s.wins).toFixed(1):'0';$('#poopleStreak').textContent=s.streak;const max=Math.max(1,...s.dist);$('#poopleDistribution').innerHTML=s.dist.map((n,i)=>`<div class="poople-dist-row${P.won&&Math.min(6,Math.max(0,P.guesses.length-P.par))===i?' latest':''}"><b>${i===6?'6+':i}</b><div class="poople-dist-track"><i class="poople-dist-bar" style="width:${n?Math.max(12,n/max*100):0}%">${n}</i></div></div>`).join('')}
+function openPoople(){
+  $('#gameChooser').close();document.body.classList.add('poople-mode');$('#poopleView').hidden=false;P.active=true;
+  $('#brandTitle').textContent='Poople';$('#brandTagline').textContent='A daily word ladder.';$('.logo svg text').textContent='P';$('#footerText').textContent='A new word ladder every day.';$('#roomBadge').hidden=true;$('#statsBtn').hidden=false;$('#statsBtn').disabled=false;
+  loadPooplePuzzle();
+}
+function backToGameChooser(){P.active=false;document.body.classList.remove('poople-mode');$('#poopleView').hidden=true;$('#brandTitle').textContent='Word Detective';$('#brandTagline').textContent='Every word is a case.';$('.logo svg text').textContent='W';$('#footerText').textContent='A little word mystery for your next coffee break.';renderSide();$('#gameChooser').showModal()}
+function openPoopleStats(){const s=P.stats||poopleStats(),avg=s.wins?(s.extraTotal/s.wins).toFixed(1):'0';$('#poopleStatsGrid').innerHTML=[['Solved',s.wins],['Avg. extra',avg],['Streak',s.streak],['Best',s.best]].map(([l,v])=>`<div><strong>${v}</strong><span>${l}</span></div>`).join('');const max=Math.max(1,...s.dist);$('#poopleStatsDist').innerHTML=s.dist.map((n,i)=>`<div class="bar${P.won&&Math.min(6,Math.max(0,P.guesses.length-P.par))===i?' now':''}"><b>${i===6?'6+':i}</b><div><i style="width:${n?Math.max(12,n/max*100):0}%">${n}</i></div></div>`).join('');$('#poopleStats').showModal()}
+$('#poopleShowPath').addEventListener('click',()=>{P.showPath=!P.showPath;$('#poopleShowPath').textContent=P.showPath?'Hide shortest path':'Show shortest path';poopleRender()});
+$('#poopleShare').addEventListener('click',async()=>{if(await copyText(poopleShareText()))toast('Poople result copied!');else toast('Copy isn’t available here')});
+$('#backToGames').addEventListener('click',backToGameChooser);
+$('#resetPoopleStats').addEventListener('click',()=>{if(confirm('Reset your Poople stats?')){P.stats=blankPoopleStats();store.set('wordloop.poople.stats',P.stats);poopleStatsRender();openPoopleStats()}});
+buildPoopleKeyboard();
+
 /* ---------- wiring ---------- */
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey||document.querySelector('dialog[open]'))return;
+  if(P.active){if(e.key==='Enter'){e.preventDefault();poopleKey('ENTER')}else if(e.key==='Backspace'){e.preventDefault();poopleKey('BACK')}else if(/^[a-z]$/i.test(e.key))poopleKey(e.key.toUpperCase());return}
   if(e.key==='Enter'){if(e.target.closest&&e.target.closest('button'))return;e.preventDefault();submit()}
   else if(e.key==='Backspace')backspace();
   else if(/^[a-z]$/i.test(e.key))type(e.key.toUpperCase());
@@ -1231,13 +1404,14 @@ $$('[data-player-mode]').forEach(b=>b.addEventListener('click',()=>{
 $('#newGame').addEventListener('click',newRound);
 $('#hintBtn').addEventListener('click',useHint);
 $('#shareBtn').addEventListener('click',showShare);
-$('#helpBtn').addEventListener('click',()=>$('#help').showModal());
-$('#statsBtn').addEventListener('click',openStats);
+$('#helpBtn').addEventListener('click',()=>$(P.active?'#poopleHelp':'#help').showModal());
+$('#statsBtn').addEventListener('click',()=>P.active?openPoopleStats():openStats());
 $('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').showModal()});
 $('#roomBadge').addEventListener('click',async()=>{if(await copyText(D.code))toast('Room code copied!');else toast('Copy isn’t available here')});
 $('#startPlaying').addEventListener('click',()=>{ $('#welcome').close();$('#gameChooser').showModal() });
 $('#chooseWordDetective').addEventListener('click',()=>{ $('#gameChooser').close();$('#playerChoice').showModal() });
 $('#chooseSingle').addEventListener('click',()=>$('#playerChoice').close());
+$('#choosePoople').addEventListener('click',openPoople);
 $('#chooseMultiplayer').addEventListener('click',()=>{ $('#playerChoice').close();openMultiplayer() });
 ['welcome','gameChooser','playerChoice'].forEach(id=>$('#'+id).addEventListener('cancel',e=>e.preventDefault()));
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>$('#'+b.dataset.close).close()));

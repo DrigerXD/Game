@@ -1,5 +1,5 @@
-const V = 'wordloop-v11';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
+const V = 'wordloop-v12';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './poople-words.js'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
