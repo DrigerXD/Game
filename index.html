@@ -66,6 +66,7 @@ button{font:inherit;color:inherit}
 
 /* hero */
 .hero{text-align:center;padding:22px 0 14px}
+.game-back{display:inline-flex;width:auto;margin:0 0 12px;padding:9px 12px;font-size:12px}
 .seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px}
 .mode-picker{display:grid;justify-items:center;gap:8px;margin-bottom:16px}
 .mode-picker .seg{margin:0}
@@ -381,6 +382,7 @@ body.poople-mode .room-badge{display:none}
 </dialog>
 
   <section class="hero">
+    <button class="btn ghost game-back" id="backToGamesFromDetective">← All games</button>
     <div class="mode-picker">
       <div class="seg" role="group" aria-label="Player mode">
         <button id="playerModeSingle" data-player-mode="single" aria-pressed="true">Single player</button>
@@ -788,6 +790,7 @@ function renderSide(){
   $('.top').classList.toggle('has-room',!!D.code);
   $('#roomBadge').hidden=!D.code;
   $('#roomBadgeCode').textContent=D.code;
+  $('#backToGamesFromDetective').hidden=multiplayerSelected;
   $('#statsBtn').disabled=multi;
   $('#statsBtn').hidden=multiplayerSelected;
   $('.stats').hidden=multi;$('#duelPanel').hidden=!multi;
@@ -1415,6 +1418,7 @@ $('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').sh
 $('#roomBadge').addEventListener('click',async()=>{if(await copyText(D.code))toast('Room code copied!');else toast('Copy isn’t available here')});
 $('#startPlaying').addEventListener('click',()=>{ $('#welcome').close();$('#gameChooser').showModal() });
 $('#chooseWordDetective').addEventListener('click',()=>{ $('#gameChooser').close();$('#playerChoice').showModal() });
+$('#backToGamesFromDetective').addEventListener('click',()=>{if(G.mode==='multi'||D.peer||D.conn||D.busy||$('#multiplayer').open){toast('Leave the match first to switch games');return}$('#gameChooser').showModal()});
 $('#chooseSingle').addEventListener('click',()=>$('#playerChoice').close());
 $('#choosePoople').addEventListener('click',openPoople);
 $('#chooseMultiplayer').addEventListener('click',()=>{ $('#playerChoice').close();openMultiplayer() });
