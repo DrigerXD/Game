@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f5ef">
-<meta name="description" content="Wordloop is a free, unlimited five-letter word guessing game. Play a fresh word whenever you want, or take on the daily challenge.">
-<meta property="og:title" content="Wordloop — unlimited word guessing">
+<meta name="description" content="Word Detective is a free, unlimited five-letter word mystery. Crack a fresh case whenever you want, or take on the daily case.">
+<meta property="og:title" content="Word Detective — crack the five-letter case">
 <meta property="og:description" content="One more round? Always. Unlimited five-letter word puzzles plus a daily challenge.">
 <meta property="og:type" content="website">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Wordloop">
-<title>Wordloop — unlimited word guessing</title>
+<meta name="apple-mobile-web-app-title" content="Word Detective">
+<title>Word Detective — crack the five-letter case</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -25,7 +25,7 @@ try{var s=JSON.parse(localStorage.getItem('wordloop.settings')||'{}');var d=s.th
 :root{
   --paper:#f6f5ef;--glow:#dfeadb;--ink:#1d231c;--muted:#6a7168;--line:#dcdfd6;
   --surface:#fff;--surface2:#eef0e9;
-  --green:#4f8057;--gold:#c8963e;--gray:#767c74;
+  --green:#4f8057;--gold:#c8963e;--gray:#767c74;--bad:#b5473a;
   --tile-line:#cfd3c9;--tile-filled:#8f968c;
   --key:#e4e7df;--key-edge:#cdd1c7;--key-ink:#1d231c;--key-absent:#8a9087;--key-absent-ink:#fff;
   --shadow:0 18px 50px -20px #1d231c40;
@@ -35,7 +35,7 @@ try{var s=JSON.parse(localStorage.getItem('wordloop.settings')||'{}');var d=s.th
 :root[data-theme=dark]{
   --paper:#111611;--glow:#1b2a1d;--ink:#eef1ea;--muted:#9aa296;--line:#283027;
   --surface:#1a201a;--surface2:#232b23;
-  --green:#5c9a67;--gold:#bf9440;--gray:#444b43;
+  --green:#5c9a67;--gold:#bf9440;--gray:#444b43;--bad:#d9806f;
   --tile-line:#363e35;--tile-filled:#6c756a;
   --key:#2d362c;--key-edge:#212920;--key-ink:#eef1ea;--key-absent:#1a201a;--key-absent-ink:#6f776c;
   --shadow:0 18px 50px -20px #000c;
@@ -73,6 +73,14 @@ button{font:inherit;color:inherit}
 /* layout */
 .game{display:grid;grid-template-columns:1fr 236px;gap:24px;align-items:start}
 .board-wrap{display:flex;justify-content:center;padding:6px 0}
+/* detective theme */
+.casetag{display:flex;align-items:center;justify-content:center;gap:12px;min-height:30px;margin:0 auto 2px;font:700 11px 'DM Mono',ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.casetag #caseTag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:9px;vertical-align:1px}
+.stamp{display:inline-block;padding:3px 9px;border:2px solid currentColor;border-radius:5px;opacity:0;transform:rotate(-7deg) scale(1.9);transition:transform .26s cubic-bezier(.2,1.7,.4,1),opacity .18s;pointer-events:none}
+.stamp.show{opacity:.95;transform:rotate(-7deg) scale(1)}
+.stamp.win{color:var(--green)}.stamp.lose{color:var(--bad)}
+@media (prefers-reduced-motion:reduce){.stamp{transition:none}}
+
 .board{display:grid;gap:6px}
 .row{display:grid;grid-template-columns:repeat(5,var(--tile));gap:6px}
 
@@ -198,8 +206,8 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <div class="logo" aria-hidden="true">W</div>
-      <div><h1>wordloop</h1><p>One more round? Always.</p></div>
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M18.2 18.2 25 25" stroke-width="3.4"/><text x="12" y="15.3" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" font-weight="700" fill="#fff" stroke="none">W</text></svg></div>
+      <div><h1>Word Detective</h1><p>Every word is a case.</p></div>
     </div>
     <div class="top-actions">
       <button class="iconbtn" id="helpBtn" aria-label="How to play"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/></svg></button>
@@ -211,53 +219,54 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   <section class="hero">
     <div class="seg" role="group" aria-label="Game mode">
       <button id="modeFree" data-mode="free" aria-pressed="true">Unlimited</button>
-      <button id="modeDaily" data-mode="daily" aria-pressed="false">Daily</button>
+      <button id="modeDaily" data-mode="daily" aria-pressed="false">Daily case</button>
     </div>
-    <h2 id="heroTitle">Find the hidden word.</h2>
-    <p id="heroSub">Six guesses. A fresh five-letter word whenever you want.</p>
+    <h2 id="heroTitle">Crack the case.</h2>
+    <p id="heroSub">Six guesses to name the mystery word. A new case whenever you want.</p>
   </section>
 
   <main class="game">
     <div>
+      <div class="casetag"><span id="caseTag">Case file</span><span class="stamp" id="stamp" aria-live="polite"></span></div>
       <div class="board-wrap"><div class="board" id="board" role="grid" aria-label="Guess board"></div></div>
       <div class="keyboard" id="keyboard" aria-label="On-screen keyboard"></div>
     </div>
     <aside class="side">
       <h3 id="sideTitle">Your streak</h3>
       <div class="stats">
-        <div><strong id="played">0</strong><span>played</span></div>
-        <div><strong id="winrate">0%</strong><span>win rate</span></div>
+        <div><strong id="played">0</strong><span>cases</span></div>
+        <div><strong id="winrate">0%</strong><span>solved</span></div>
         <div><strong id="streak">0</strong><span>streak</span></div>
       </div>
-      <div class="status" id="status" aria-live="polite">Ready when you are</div>
+      <div class="status" id="status" aria-live="polite">The case is open</div>
       <div class="countdown" id="countdown" hidden></div>
       <div class="btn-stack">
-        <button class="btn ghost" id="hintBtn">Hint</button>
+        <button class="btn ghost" id="hintBtn">Get a clue</button>
         <button class="btn ghost" id="shareBtn" hidden>Share result</button>
-        <button class="btn primary" id="newGame">New word</button>
+        <button class="btn primary" id="newGame">New case</button>
       </div>
-      <p class="side-note" id="sideNote">No daily limit, no account, no pressure. Your stats stay on this device.</p>
+      <p class="side-note" id="sideNote">No daily limit, no account. Your case files stay on this device.</p>
     </aside>
   </main>
 
-  <footer class="foot">A little word game for your next coffee break.</footer>
+  <footer class="foot">A little word mystery for your next coffee break.</footer>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="assertive"></div>
 
 <dialog id="help"><div class="dlg">
   <div class="modalhead"><h2>How to play</h2><button class="close" data-close="help" aria-label="Close">×</button></div>
-  <p class="modalcopy">Guess the hidden five-letter word in six tries. After each guess, the tiles show how close you are.</p>
+  <p class="modalcopy">Crack the case by naming the hidden five-letter word in six guesses. After each guess, the tiles report how close you are.</p>
   <div class="legend">
     <div class="example"><span class="mini correct">S</span><span><b>Green</b> — right letter, right spot.</span></div>
     <div class="example"><span class="mini present">T</span><span><b>Gold</b> — in the word, different spot.</span></div>
     <div class="example"><span class="mini absent">O</span><span><b>Gray</b> — not in the word.</span></div>
   </div>
   <ul class="tips">
-    <li><b>Unlimited</b> gives you a new word every round, drawn from an online dictionary when you’re connected.</li>
-    <li><b>Daily</b> is one shared word per day, the same for everyone.</li>
-    <li><b>Hint</b> reveals one letter once per round.</li>
-    <li><b>Hard mode</b> (in settings) forces you to reuse what you've found.</li>
+    <li><b>Unlimited</b> opens a new case every round, drawn from an online dictionary when you’re connected.</li>
+    <li><b>Daily case</b> is one shared word per day, the same for every detective.</li>
+    <li><b>Get a clue</b> reveals one letter, once per case.</li>
+    <li><b>Hard mode</b> (in settings) forces you to use every clue you’ve found.</li>
   </ul>
   <p class="modalcopy">Press Enter to submit and Backspace to edit.</p>
 </div></dialog>
@@ -278,7 +287,7 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
       <button data-theme-set="light" aria-pressed="false">Light</button>
       <button data-theme-set="dark" aria-pressed="false">Dark</button>
     </div></div>
-  <div class="setting"><div><strong>Hard mode</strong><small>Revealed hints must be used in later guesses. Switch on at the start of a round.</small></div>
+  <div class="setting"><div><strong>Hard mode</strong><small>Revealed clues must be used in later guesses. Switch on at the start of a case.</small></div>
     <button class="sw" id="hardSw" role="switch" aria-checked="false" aria-label="Hard mode"></button></div>
   <div class="setting"><div><strong>Colorblind palette</strong><small>Orange and blue instead of green and gold.</small></div>
     <button class="sw" id="contrastSw" role="switch" aria-checked="false" aria-label="Colorblind palette"></button></div>
@@ -289,18 +298,18 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 </div></dialog>
 
 <dialog id="share"><div class="dlg">
-  <div class="modalhead"><h2 id="shareHead">Nice playing!</h2><button class="close" data-close="share" aria-label="Close">×</button></div>
+  <div class="modalhead"><h2 id="shareHead">Case closed!</h2><button class="close" data-close="share" aria-label="Close">×</button></div>
   <p class="modalcopy" id="shareText"></p>
   <div class="sharecard" id="shareCard"></div>
   <p class="modalcopy">Your answer stays secret in the share result.</p>
   <div class="dlg-actions">
     <button class="btn primary" id="copyShare">Copy result</button>
     <button class="btn ghost" id="nativeShare" hidden>Share…</button>
-    <button class="btn ghost" id="againBtn">Play another word</button>
+    <button class="btn ghost" id="againBtn">Take another case</button>
   </div>
 </div></dialog>
 
-<noscript><p style="text-align:center;padding:24px">Wordloop needs JavaScript to run.</p></noscript>
+<noscript><p style="text-align:center;padding:24px">Word Detective needs JavaScript to run.</p></noscript>
 
 <script>
 (()=>{'use strict';
@@ -315,7 +324,7 @@ const ANSWERS=[...new Set(EXTRA_WORDS)].filter(w=>/^[A-Z]{5}$/.test(w)&&!BLOCK.h
 const KEYS=['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
 const RANK={absent:1,present:2,correct:3};
 const STATE_LABEL={correct:'correct spot',present:'in the word, wrong spot',absent:'not in the word'};
-const WIN_MSG=['','Brilliant!','Lovely solve!','Well played!','Got it!','Just in time!','Last-guess hero!'];
+const WIN_MSG=['','Elementary!','Sharp deduction!','Case closed!','Nicely done, detective!','Cracked it just in time!','A last-minute breakthrough!'];
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const board=$('#board'),keyboard=$('#keyboard'),statusEl=$('#status'),toastEl=$('#toast'),countdownEl=$('#countdown');
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -523,20 +532,24 @@ const pct=s=>s.played?Math.round(s.wins/s.played*100)+'%':'0%';
 function renderSide(){
   const s=stats[G.mode],daily=G.mode==='daily';
   $('#played').textContent=s.played;$('#winrate').textContent=pct(s);$('#streak').textContent=s.streak;
-  $('#sideTitle').textContent=daily?'Daily streak':'Your streak';
+  $('#sideTitle').textContent=daily?'Daily case streak':'Case file';
   $('#hintBtn').disabled=G.done||!!G.hint;
-  $('#hintBtn').textContent=G.hint?'Hint used':'Hint';
+  $('#hintBtn').textContent=G.hint?'Clue used':'Get a clue';
   $('#shareBtn').hidden=!G.done;
-  $('#newGame').textContent=daily?'Play unlimited':(G.done?'Play again':'New word');
-  $('#sideNote').textContent=daily?'One shared word per day. Come back tomorrow for the next one.':'No daily limit, no account, no pressure. Your stats stay on this device.';
+  $('#newGame').textContent=daily?'Play unlimited':(G.done?'Next case':'New case');
+  $('#sideNote').textContent=daily?'One shared case per day. Come back tomorrow for the next one.':'No daily limit, no account. Your case files stay on this device.';
   $('#modeFree').setAttribute('aria-pressed',!daily);$('#modeDaily').setAttribute('aria-pressed',daily);
-  $('#heroSub').textContent=daily?`Daily #${dailyIndex()+1} · one word, the same for everyone today.`:'Six guesses. A fresh five-letter word whenever you want.';
+  $('#heroSub').textContent=daily?`Daily case #${dailyIndex()+1} · one word, the same for every detective today.`:'Six guesses to name the mystery word. A new case whenever you want.';
+  const n=daily?dailyIndex()+1:s.played+(G.done?0:1);
+  $('#caseTag').textContent=`Case file No. ${String(n).padStart(3,'0')} · ${daily?'Daily':'Unlimited'}`;
+  const st=$('#stamp');st.classList.toggle('show',!!G.done);st.classList.toggle('win',!!(G.done&&G.won));st.classList.toggle('lose',!!(G.done&&!G.won));
+  if(G.done)st.textContent=G.won?'Case closed':'Unsolved';
   tick();
 }
 function renderAll(){
   renderBoard();refreshKeys();renderSide();
   if(G.done)finish(false);
-  else setStatus(G.guesses.length?`${6-G.guesses.length} guess${6-G.guesses.length===1?'':'es'} left`:'Ready when you are');
+  else setStatus(G.guesses.length?`${6-G.guesses.length} guess${6-G.guesses.length===1?'':'es'} left`:'The case is open');
 }
 
 /* ---------- input ---------- */
@@ -565,7 +578,7 @@ function reveal(r,colors,done){
 }
 function idleStatus(){
   const left=6-G.guesses.length;
-  setStatus(G.guesses.length?`${left} guess${left===1?'':'es'} left`:'Ready when you are');
+  setStatus(G.guesses.length?`${left} guess${left===1?'':'es'} left`:'The case is open');
 }
 async function submit(){
   if(G.done||busy)return;
@@ -615,7 +628,7 @@ function finish(fresh){
       setTimeout(showShare,1500);
     }
   }else{
-    setStatus(`The word was ${G.answer}`);
+    setStatus(`Case unsolved. The word was ${G.answer}`);
     if(fresh){tone(196,.35,'sawtooth',.04);setTimeout(showShare,1000)}
   }
 }
@@ -634,14 +647,14 @@ function confetti(){
 /* ---------- hint ---------- */
 function useHint(){
   if(G.done||busy)return;
-  if(G.hint){toast('You already used this round’s hint');return}
+  if(G.hint){toast('You already used this case’s clue');return}
   const solved=new Set();
   G.guesses.forEach(g=>evaluate(g,G.answer).forEach((c,i)=>{if(c==='correct')solved.add(i)}));
   const open=[0,1,2,3,4].filter(i=>!solved.has(i));
   const pool=open.length?open:[0,1,2,3,4];
   G.hint={pos:pool[Math.floor(Math.random()*pool.length)]};
   persist();paintRow();renderSide();
-  toast(`Hint: letter ${G.hint.pos+1} is ${G.answer[G.hint.pos]}`,2600);
+  toast(`Clue: letter ${G.hint.pos+1} is ${G.answer[G.hint.pos]}`,2600);
 }
 
 /* ---------- sharing ---------- */
@@ -649,16 +662,16 @@ function shareText(){
   const E=settings.contrast?{correct:'🟧',present:'🟦',absent:'⬛'}:{correct:'🟩',present:'🟨',absent:'⬛'};
   const rows=G.guesses.map(g=>evaluate(g,G.answer).map(c=>E[c]).join(''));
   const score=G.won?G.guesses.length:'X';
-  const head=G.mode==='daily'?`Wordloop Daily #${dailyIndex()+1} ${score}/6`:`Wordloop ${score}/6`;
+  const head=G.mode==='daily'?`🔎 Word Detective Daily #${dailyIndex()+1} ${score}/6`:`🔎 Word Detective ${score}/6`;
   return head+(G.hint?' 💡':'')+'\n\n'+rows.join('\n')+'\n\n'+location.origin;
 }
 function showShare(){
   if(!G.done)return;
-  $('#shareHead').textContent=G.won?`Solved in ${G.guesses.length}/6`:'Better luck next time';
+  $('#shareHead').textContent=G.won?`Case solved in ${G.guesses.length}/6`:'The trail went cold';
   $('#shareText').textContent=G.won?WIN_MSG[G.guesses.length]:`The word was ${G.answer}.`;
   $('#shareCard').textContent=shareText();
   $('#nativeShare').hidden=!navigator.share;
-  $('#againBtn').textContent=G.mode==='daily'?'Try unlimited mode':'Play another word';
+  $('#againBtn').textContent=G.mode==='daily'?'Try unlimited mode':'Take another case';
   if(!$('#share').open)$('#share').showModal();
 }
 async function copyText(text){
@@ -683,7 +696,7 @@ function newRound(){
 function openStats(){
   const s=stats[G.mode],max=Math.max(1,...s.dist);
   $('#statsTitle').textContent=G.mode==='daily'?'Daily stats':'Unlimited stats';
-  $('#statsGrid').innerHTML=[['Played',s.played],['Win %',pct(s).replace('%','')],['Streak',s.streak],['Best',s.best]].map(([l,v])=>`<div><strong>${v}</strong><span>${l}</span></div>`).join('');
+  $('#statsGrid').innerHTML=[['Cases',s.played],['Solved %',pct(s).replace('%','')],['Streak',s.streak],['Best',s.best]].map(([l,v])=>`<div><strong>${v}</strong><span>${l}</span></div>`).join('');
   $('#dist').innerHTML=s.dist.map((n,i)=>`<div class="bar${G.done&&G.won&&G.guesses.length===i+1?' now':''}"><b>${i+1}</b><div><i style="width:${n/max*100}%">${n}</i></div></div>`).join('');
   $('#stats').showModal();
 }
@@ -740,7 +753,7 @@ $('#againBtn').addEventListener('click',()=>{$('#share').close();if(G.mode==='da
 $('#resetStats').addEventListener('click',()=>{if(confirm('Reset your '+(G.mode==='daily'?'daily':'unlimited')+' stats?')){stats[G.mode]=blank();store.set('wordloop.stats2',stats);renderSide();openStats()}});
 $$('[data-theme-set]').forEach(b=>b.addEventListener('click',()=>{settings.theme=b.dataset.themeSet;saveSettings()}));
 $('#hardSw').addEventListener('click',()=>{
-  if(!settings.hard&&!G.done&&G.guesses.length){toast('Hard mode can only start at the beginning of a round');return}
+  if(!settings.hard&&!G.done&&G.guesses.length){toast('Hard mode can only start at the beginning of a case');return}
   settings.hard=!settings.hard;saveSettings();
 });
 $('#contrastSw').addEventListener('click',()=>{settings.contrast=!settings.contrast;saveSettings()});
