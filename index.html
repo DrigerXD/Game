@@ -157,10 +157,21 @@ button{font:inherit;color:inherit}
 
 /* dialogs */
 dialog{border:0;border-radius:22px;padding:0;max-width:420px;width:calc(100% - 28px);background:var(--surface);color:var(--ink);box-shadow:0 24px 90px #0005}
+.welcome{max-width:520px}
 dialog[open]{animation:rise .22s ease}
 dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 @keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}}
 .dlg{padding:24px}
+.welcome .dlg{padding:32px}
+.welcome-kicker{font:700 11px 'DM Mono',monospace;letter-spacing:.18em;color:var(--green);margin:0 0 9px;text-transform:uppercase}
+.welcome h2{font-size:30px;letter-spacing:-1.1px;margin:0}
+.welcome-copy{font-size:14px;line-height:1.6;color:var(--muted);margin:8px 0 22px}
+.start-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.start-option{display:grid;gap:9px;text-align:left;min-height:154px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);color:var(--ink);cursor:pointer;transition:border-color .15s,transform .15s,background .15s}
+.start-option:hover{border-color:var(--green);transform:translateY(-2px)}
+.start-option strong{font-size:16px}
+.start-option span:last-child{font-size:12.5px;line-height:1.5;color:var(--muted)}
+.start-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--green);color:#fff;font-size:19px;font-weight:700}
 .modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .modalhead h2{font-size:21px;letter-spacing:-.6px;margin:0}
 .close{border:0;background:var(--surface2);border-radius:10px;width:34px;height:34px;font-size:19px;cursor:pointer}
@@ -217,6 +228,9 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   .btn-stack{grid-template-columns:1fr 1fr}
   .foot{margin-top:18px}
   .dlg{padding:20px}
+  .welcome .dlg{padding:24px 20px}
+  .start-options{grid-template-columns:1fr}
+  .start-option{min-height:0}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -234,6 +248,26 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
       <button class="iconbtn" id="settingsBtn" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
     </div>
   </header>
+
+<dialog id="welcome" class="welcome" aria-labelledby="welcomeTitle">
+  <div class="dlg">
+    <p class="welcome-kicker">Word Detective</p>
+    <h2 id="welcomeTitle">How do you want to play?</h2>
+    <p class="welcome-copy">Choose your game mode to get started. You can switch modes any time.</p>
+    <div class="start-options">
+      <button class="start-option" id="chooseSingle">
+        <span class="start-icon" aria-hidden="true">⌕</span>
+        <strong>Single player</strong>
+        <span>Solve cases at your own pace. Choose Unlimited or the Daily case.</span>
+      </button>
+      <button class="start-option" id="chooseMultiplayer">
+        <span class="start-icon" aria-hidden="true">↗</span>
+        <strong>Multiplayer</strong>
+        <span>Invite a friend and race to solve the same mystery word.</span>
+      </button>
+    </div>
+  </div>
+</dialog>
 
   <section class="hero">
     <div class="mode-picker">
@@ -1065,8 +1099,11 @@ $('#shareBtn').addEventListener('click',showShare);
 $('#helpBtn').addEventListener('click',()=>$('#help').showModal());
 $('#statsBtn').addEventListener('click',openStats);
 $('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').showModal()});
+$('#chooseSingle').addEventListener('click',()=>$('#welcome').close());
+$('#chooseMultiplayer').addEventListener('click',()=>{ $('#welcome').close();openMultiplayer() });
+$('#welcome').addEventListener('cancel',e=>e.preventDefault());
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>$('#'+b.dataset.close).close()));
-$$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+$$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d&&d.id!=='welcome')d.close()}));
 $('#multiplayer').addEventListener('close',renderSide);
 $('#copyShare').addEventListener('click',async()=>{if(await copyText($('#shareCard').textContent)){toast('Result copied!');$('#share').close()}else toast('Copy isn’t available here')});
 $('#nativeShare').addEventListener('click',async()=>{try{await navigator.share({text:$('#shareCard').textContent})}catch{}});
@@ -1094,7 +1131,7 @@ $('#playerName').value=store.get('wordloop.playerName','');
 loadGame(store.get('wordloop.mode','free'));
 renderAll();
 topUp();addEventListener('online',topUp);
-autoJoinRoom();
+autoJoinRoom();if(!$('#multiplayer').open)$('#welcome').showModal();
 setInterval(tick,1000);
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 })();
