@@ -170,8 +170,9 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 .welcome h2{font-size:30px;letter-spacing:-1.1px;margin:0}
 .welcome-copy{font-size:14px;line-height:1.6;color:var(--muted);margin:8px 0 22px}
 .start-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.start-option{display:grid;gap:9px;text-align:left;min-height:154px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);color:var(--ink);cursor:pointer;transition:border-color .15s,transform .15s,background .15s}
+.start-option{display:grid;gap:9px;text-align:left;min-height:154px;padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface2);color:var(--ink);cursor:pointer;text-decoration:none;font:inherit;transition:border-color .15s,transform .15s,background .15s}
 .start-option:hover{border-color:var(--green);transform:translateY(-2px)}
+.start-option:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .start-option strong{font-size:16px}
 .start-option span:last-child{font-size:12.5px;line-height:1.5;color:var(--muted)}
 .start-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--green);color:#fff;font-size:19px;font-weight:700}
@@ -262,20 +263,20 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 
 <dialog id="welcome" class="welcome" aria-labelledby="welcomeTitle">
   <div class="dlg">
-    <p class="welcome-kicker">Word Detective</p>
-    <h2 id="welcomeTitle">How do you want to play?</h2>
-    <p class="welcome-copy">Choose your game mode to get started. You can switch modes any time.</p>
+    <p class="welcome-kicker">Word games</p>
+    <h2 id="welcomeTitle">Choose a game</h2>
+    <p class="welcome-copy">Pick what you want to play. Word Detective includes single-player and multiplayer modes.</p>
     <div class="start-options">
-      <button class="start-option" id="chooseSingle">
+      <button class="start-option" id="chooseWordDetective">
         <span class="start-icon" aria-hidden="true">⌕</span>
-        <strong>Single player</strong>
-        <span>Solve cases at your own pace. Choose Unlimited or the Daily case.</span>
+        <strong>Word Detective</strong>
+        <span>Solve five-letter cases alone or with friends.</span>
       </button>
-      <button class="start-option" id="chooseMultiplayer">
-        <span class="start-icon" aria-hidden="true">↗</span>
-        <strong>Multiplayer</strong>
-        <span>Choose a room size and solve the word together.</span>
-      </button>
+      <a class="start-option" id="choosePoople" href="https://poople.io/" target="_blank" rel="noopener noreferrer" aria-label="Play Poople at poople.io, opens in a new tab">
+        <span class="start-icon" aria-hidden="true">P</span>
+        <strong>Poople</strong>
+        <span>Open the official daily word game at poople.io ↗</span>
+      </a>
     </div>
   </div>
 </dialog>
@@ -1205,8 +1206,7 @@ $('#helpBtn').addEventListener('click',()=>$('#help').showModal());
 $('#statsBtn').addEventListener('click',openStats);
 $('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').showModal()});
 $('#roomBadge').addEventListener('click',async()=>{if(await copyText(D.code))toast('Room code copied!');else toast('Copy isn’t available here')});
-$('#chooseSingle').addEventListener('click',()=>$('#welcome').close());
-$('#chooseMultiplayer').addEventListener('click',()=>{ $('#welcome').close();openMultiplayer() });
+$('#chooseWordDetective').addEventListener('click',()=>$('#welcome').close());
 $('#welcome').addEventListener('cancel',e=>e.preventDefault());
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>$('#'+b.dataset.close).close()));
 $$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d&&d.id!=='welcome')d.close()}));
