@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f6f5ef">
-<meta name="description" content="Word Detective is a free, unlimited five-letter word mystery. Crack a fresh case whenever you want, or take on the daily case.">
+<meta name="description" content="Word Detective is a free five-letter word mystery. Play solo, take on the daily case, or race a friend in multiplayer.">
 <meta property="og:title" content="Word Detective — crack the five-letter case">
-<meta property="og:description" content="One more round? Always. Unlimited five-letter word puzzles plus a daily challenge.">
+<meta property="og:description" content="Play unlimited five-letter cases, take on the daily word, or race a friend in multiplayer.">
 <meta property="og:type" content="website">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -65,6 +65,8 @@ button{font:inherit;color:inherit}
 /* hero */
 .hero{text-align:center;padding:22px 0 14px}
 .seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:16px}
+.mode-picker{display:grid;justify-items:center;gap:8px;margin-bottom:16px}
+.mode-picker .seg{margin:0}
 .seg button{border:0;background:none;padding:7px 18px;border-radius:999px;font-weight:700;font-size:12.5px;color:var(--muted);cursor:pointer;transition:.15s}
 .seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px #0002}
 .hero h2{font-size:28px;letter-spacing:-1.2px;margin:0}
@@ -107,6 +109,22 @@ button{font:inherit;color:inherit}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;text-align:center;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .stats strong{font-size:22px;display:block;letter-spacing:-.5px}
 .stats span{font-size:10.5px;color:var(--muted)}
+.duel-card{padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.duel-player{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;margin:0 0 9px}
+.duel-player span{color:var(--muted)}
+.duel-player strong{font:700 12px 'DM Mono',monospace;text-align:right}
+.duel-result{font-size:11.5px;line-height:1.5;color:var(--muted);margin:10px 0 0;text-align:center}
+.field{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:700;margin:14px 0}
+.field input{width:100%;border:1px solid var(--line);border-radius:11px;background:var(--surface2);color:var(--ink);padding:11px 12px;font:500 14px 'DM Sans',sans-serif;outline:none}
+.field input:focus,.invite-link:focus{border-color:var(--green)}
+.invite-link{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);padding:9px 10px;font:11px 'DM Mono',monospace}
+.duel-join{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.duel-join .field{margin:10px 0 0}
+.duel-join .btn{width:auto;min-width:100px}
+.duel-lobby{padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--surface2);margin:14px 0}
+.duel-lobby strong{display:block;font:700 22px 'DM Mono',monospace;letter-spacing:.16em;text-align:center;margin:5px 0 10px}
+.duel-lobby small{display:block;color:var(--muted);font-size:11.5px;line-height:1.5;text-align:center}
+.duel-lobby .btn{margin-top:8px}
 .status{min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13.5px;font-weight:700;color:var(--green);padding:6px 0}
 .countdown{text-align:center;font:500 12px 'DM Mono',monospace;color:var(--muted);margin:-4px 0 10px}
 .btn{width:100%;border:0;border-radius:13px;padding:12px 14px;font-weight:700;font-size:13.5px;cursor:pointer;transition:transform .12s,background .15s,opacity .15s}
@@ -185,6 +203,7 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   .hero h2{font-size:22px}
   .hero p{display:none}
   .seg{margin-bottom:10px}
+  .seg button{padding:7px 11px;font-size:11.5px}
   .game{grid-template-columns:1fr;gap:12px}
   .side{order:2;padding:14px 16px}
   .side h3{margin-bottom:9px}
@@ -217,9 +236,15 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   </header>
 
   <section class="hero">
-    <div class="seg" role="group" aria-label="Game mode">
-      <button id="modeFree" data-mode="free" aria-pressed="true">Unlimited</button>
-      <button id="modeDaily" data-mode="daily" aria-pressed="false">Daily case</button>
+    <div class="mode-picker">
+      <div class="seg" role="group" aria-label="Player mode">
+        <button id="playerModeSingle" data-player-mode="single" aria-pressed="true">Single player</button>
+        <button id="playerModeMulti" data-player-mode="multi" aria-pressed="false">Multiplayer</button>
+      </div>
+      <div class="seg" id="soloModes" role="group" aria-label="Single-player mode">
+        <button id="modeFree" data-mode="free" aria-pressed="true">Unlimited</button>
+        <button id="modeDaily" data-mode="daily" aria-pressed="false">Daily case</button>
+      </div>
     </div>
     <h2 id="heroTitle">Crack the case.</h2>
     <p id="heroSub">Six guesses to name the mystery word. A new case whenever you want.</p>
@@ -237,6 +262,11 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
         <div><strong id="played">0</strong><span>cases</span></div>
         <div><strong id="winrate">0%</strong><span>solved</span></div>
         <div><strong id="streak">0</strong><span>streak</span></div>
+      </div>
+      <div class="duel-card" id="duelPanel" hidden>
+        <div class="duel-player"><span id="duelYouName">You</span><strong id="duelMine">0/6</strong></div>
+        <div class="duel-player"><span id="duelOpponentName">Opponent</span><strong id="duelTheirs">Waiting</strong></div>
+        <p class="duel-result" id="duelResult" aria-live="polite"></p>
       </div>
       <div class="status" id="status" aria-live="polite">The case is open</div>
       <div class="countdown" id="countdown" hidden></div>
@@ -265,10 +295,30 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   <ul class="tips">
     <li><b>Unlimited</b> opens a new case every round, drawn from an online dictionary when you’re connected.</li>
     <li><b>Daily case</b> is one shared word per day, the same for every detective.</li>
+    <li><b>Two players</b> creates an invite room. Both detectives get the same word; the first to solve wins.</li>
     <li><b>Get a clue</b> reveals one letter, once per case.</li>
     <li><b>Hard mode</b> (in settings) forces you to use every clue you’ve found.</li>
   </ul>
   <p class="modalcopy">Press Enter to submit and Backspace to edit.</p>
+</div></dialog>
+
+<dialog id="multiplayer"><div class="dlg">
+  <div class="modalhead"><h2>Play a friend</h2><button class="close" data-close="multiplayer" aria-label="Close">×</button></div>
+  <p class="modalcopy">Create a private room, then share the invite link. Both detectives get the same word and guess at the same time. Keep the host page open until the match ends.</p>
+  <label class="field">Your name<input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Detective"></label>
+  <button class="btn primary" id="createRoom">Create room</button>
+  <div class="duel-join">
+    <label class="field">Room code<input id="joinCode" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="8 letter code"></label>
+    <button class="btn ghost" id="joinRoom">Join</button>
+  </div>
+  <div class="duel-lobby" id="roomBox" hidden>
+    <small id="roomStatus">Waiting for your friend to join…</small>
+    <strong id="roomCode">--------</strong>
+    <input class="invite-link" id="inviteLink" aria-label="Invite link" readonly>
+    <button class="btn ghost" id="copyInvite">Copy invite link</button>
+  </div>
+  <p class="modalcopy" id="multiplayerStatus" role="status" aria-live="polite">Both players need an internet connection. Multiplayer uses PeerJS Cloud to connect the room.</p>
+  <button class="btn ghost" id="leaveRoom" hidden>Leave room</button>
 </div></dialog>
 
 <dialog id="stats"><div class="dlg">
@@ -401,6 +451,8 @@ async function topUp(){
 /* ---------- state ---------- */
 let G={mode:'free',answer:'',guesses:[],done:false,won:false,hint:null,date:''};
 let cur='',grid=[],busy=false,round=0;
+const D={peer:null,conn:null,role:'',name:'',opponentName:'',code:'',previousMode:'free',active:false,connected:false,busy:false,
+  opponentGuesses:0,opponentDone:false,opponentWon:false,winnerId:null,gameId:''};
 
 const keyOf=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const dayKey=()=>keyOf(new Date());
@@ -433,6 +485,7 @@ function loadGame(mode,forceNew){
   persist();
 }
 function persist(){
+  if(G.mode==='multi')return;
   const o={guesses:G.guesses,done:G.done,won:G.won,hint:G.hint};
   if(G.mode==='daily'){o.date=G.date;store.set('wordloop.game.daily',o)}
   else{o.answer=G.answer;store.set('wordloop.game.free',o)}
@@ -530,35 +583,42 @@ function refreshKeys(){
 function setStatus(msg){statusEl.textContent=msg}
 const pct=s=>s.played?Math.round(s.wins/s.played*100)+'%':'0%';
 function renderSide(){
-  const s=stats[G.mode],daily=G.mode==='daily';
+  const multi=G.mode==='multi',daily=G.mode==='daily',s=stats[multi?'free':G.mode];
+  const multiplayerSelected=multi||!!D.peer||!!D.conn||D.busy||$('#multiplayer').open;
+  $('#statsBtn').disabled=multi;
+  $('.stats').hidden=multi;$('#duelPanel').hidden=!multi;
   $('#played').textContent=s.played;$('#winrate').textContent=pct(s);$('#streak').textContent=s.streak;
-  $('#sideTitle').textContent=daily?'Daily case streak':'Case file';
-  $('#hintBtn').disabled=G.done||!!G.hint;
+  $('#sideTitle').textContent=multi?'Head-to-head':daily?'Daily case streak':'Case file';
+  $('#hintBtn').hidden=multi;$('#hintBtn').disabled=G.done||!!G.hint;
   $('#hintBtn').textContent=G.hint?'Clue used':'Get a clue';
-  $('#shareBtn').hidden=!G.done;
-  $('#newGame').textContent=daily?'Play unlimited':(G.done?'Next case':'New case');
-  $('#sideNote').textContent=daily?'One shared case per day. Come back tomorrow for the next one.':'No daily limit, no account. Your case files stay on this device.';
-  $('#modeFree').setAttribute('aria-pressed',!daily);$('#modeDaily').setAttribute('aria-pressed',daily);
-  $('#heroSub').textContent=daily?`Daily case #${dailyIndex()+1} · one word, the same for every detective today.`:'Six guesses to name the mystery word. A new case whenever you want.';
+  $('#shareBtn').hidden=multi||!G.done;
+  $('#newGame').textContent=multi?'Leave match':daily?'Play unlimited':(G.done?'Next case':'New case');
+  $('#sideNote').textContent=multi?'First detective to solve the shared word wins.':'No daily limit, no account. Your case files stay on this device.';
+  $('#playerModeSingle').setAttribute('aria-pressed',!multiplayerSelected);$('#playerModeMulti').setAttribute('aria-pressed',multiplayerSelected);$('#soloModes').hidden=multiplayerSelected;
+  $('#modeFree').setAttribute('aria-pressed',!multi&&!daily);$('#modeDaily').setAttribute('aria-pressed',daily);
+  $('#heroTitle').textContent=multi?'Two detectives. One word.':'Crack the case.';
+  $('#heroSub').textContent=multi?'You each get a board and six guesses. First to solve wins.':daily?`Daily case #${dailyIndex()+1} · one word, the same for every detective today.`:'Six guesses to name the mystery word. A new case whenever you want.';
   const n=daily?dailyIndex()+1:s.played+(G.done?0:1);
-  $('#caseTag').textContent=`Case file No. ${String(n).padStart(3,'0')} · ${daily?'Daily':'Unlimited'}`;
+  $('#caseTag').textContent=multi?`Head-to-head · Room ${D.code}`:`Case file No. ${String(n).padStart(3,'0')} · ${daily?'Daily':'Unlimited'}`;
   const st=$('#stamp');st.classList.toggle('show',!!G.done);st.classList.toggle('win',!!(G.done&&G.won));st.classList.toggle('lose',!!(G.done&&!G.won));
   if(G.done)st.textContent=G.won?'Case closed':'Unsolved';
+  if(multi)renderDuelPanel();
   tick();
 }
 function renderAll(){
   renderBoard();refreshKeys();renderSide();
-  if(G.done)finish(false);
+  if(G.mode==='multi')renderDuelPanel();
+  else if(G.done)finish(false);
   else setStatus(G.guesses.length?`${6-G.guesses.length} guess${6-G.guesses.length===1?'':'es'} left`:'The case is open');
 }
 
 /* ---------- input ---------- */
 function pop(t){t.classList.remove('pop');void t.offsetWidth;t.classList.add('pop')}
 function type(l){
-  if(G.done||busy||cur.length>=5)return;
+  if(G.done||busy||cur.length>=5||(G.mode==='multi'&&!D.connected))return;
   cur+=l;paintRow();pop(grid[G.guesses.length][cur.length-1]);tone(520,.04,'triangle',.03);
 }
-function backspace(){if(G.done||busy||!cur)return;cur=cur.slice(0,-1);paintRow()}
+function backspace(){if(G.done||busy||!cur||(G.mode==='multi'&&!D.connected))return;cur=cur.slice(0,-1);paintRow()}
 let toastT;
 function toast(msg,ms=1800){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),ms)}
 function shake(){
@@ -582,6 +642,7 @@ function idleStatus(){
 }
 async function submit(){
   if(G.done||busy)return;
+  if(G.mode==='multi'&&!D.connected){toast('The room is disconnected');return}
   if(cur.length<5){shake();toast('Need five letters');return}
   if(!VALID.has(cur)){
     if(!settings.online){shake();toast('Not in the word list');return}
@@ -589,25 +650,28 @@ async function submit(){
     busy=true;setStatus('Checking the dictionary…');
     const ok=await isWord(g);
     if(id!==round)return;
-    busy=false;idleStatus();
+    busy=false;if(G.mode==='multi')renderDuelPanel();else idleStatus();
     if(ok!==true){shake();toast(ok===false?'Not in the word list':'Can’t check that word offline');return}
     learn(g);
     if(cur!==g)return;
   }
-  if(settings.hard){const err=hardCheck(cur);if(err){shake();toast(err);return}}
+  if(settings.hard&&G.mode!=='multi'){const err=hardCheck(cur);if(err){shake();toast(err);return}}
   const guess=cur,colors=evaluate(guess,G.answer),r=G.guesses.length;
   G.guesses.push(guess);cur='';
   const won=guess===G.answer,lost=!won&&G.guesses.length===6;
   if(won||lost){G.done=true;G.won=won;updateStats()}
   persist();
+  if(G.mode==='multi')publishDuelProgress();
   busy=true;
   reveal(r,colors,()=>{
     refreshKeys();busy=false;
-    if(G.done)finish(true);
+    if(G.done&&G.mode==='multi')renderAll();
+    else if(G.done)finish(true);
     else{idleStatus();paintRow();renderSide()}
   });
 }
 function updateStats(){
+  if(G.mode==='multi')return;
   const s=stats[G.mode];s.played++;
   if(G.won){
     s.wins++;s.dist[G.guesses.length-1]++;
@@ -619,6 +683,7 @@ function updateStats(){
   store.set('wordloop.stats2',stats);
 }
 function finish(fresh){
+  if(G.mode==='multi'){renderDuelPanel();return}
   renderSide();
   if(G.won){
     setStatus(WIN_MSG[G.guesses.length]);
@@ -666,7 +731,7 @@ function shareText(){
   return head+(G.hint?' 💡':'')+'\n\n'+rows.join('\n')+'\n\n'+location.origin;
 }
 function showShare(){
-  if(!G.done)return;
+  if(!G.done||G.mode==='multi')return;
   $('#shareHead').textContent=G.won?`Case solved in ${G.guesses.length}/6`:'The trail went cold';
   $('#shareText').textContent=G.won?WIN_MSG[G.guesses.length]:`The word was ${G.answer}.`;
   $('#shareCard').textContent=shareText();
@@ -682,20 +747,271 @@ async function copyText(text){
   }
 }
 
+/* ---------- two-player rooms ---------- */
+let peerLoadPromise=null;
+const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js';
+const ROOM_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function loadPeerJs(){
+  if(window.Peer)return Promise.resolve();
+  if(peerLoadPromise)return peerLoadPromise;
+  peerLoadPromise=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src=PEERJS_URL;script.async=true;script.crossOrigin='anonymous';
+    script.onload=()=>window.Peer?resolve():reject(new Error('PeerJS did not load'));
+    script.onerror=()=>reject(new Error('PeerJS could not be downloaded'));
+    document.head.append(script);
+  });
+  return peerLoadPromise;
+}
+function cleanPlayerName(value){
+  const name=String(value||'').replace(/[<>\u0000-\u001f]/g,'').trim().replace(/\s+/g,' ').slice(0,18);
+  return name||'Detective';
+}
+function getPlayerName(){
+  D.name=cleanPlayerName($('#playerName').value);
+  $('#playerName').value=D.name;store.set('wordloop.playerName',D.name);
+  return D.name;
+}
+function roomLink(code){
+  const url=new URL(location.href);url.hash='room='+code;return url.href;
+}
+function setRoomHash(code){const url=new URL(location.href);url.hash='room='+code;history.replaceState(null,'',url)}
+function clearRoomHash(){
+  if(!/^#room=/i.test(location.hash))return;
+  const url=new URL(location.href);url.hash='';history.replaceState(null,'',url);
+}
+function openMultiplayer(){
+  if(!$('#playerName').value)$('#playerName').value=store.get('wordloop.playerName','');
+  updateDuelLobby();
+  if(!$('#multiplayer').open)$('#multiplayer').showModal();
+  renderSide();
+  if(G.mode==='multi')renderDuelPanel();
+}
+function updateDuelLobby(message){
+  if(message!==undefined)$('#multiplayerStatus').textContent=message;
+  const hosting=D.role==='host'&&!!D.code;
+  $('#roomBox').hidden=!hosting;
+  if(hosting){
+    $('#roomCode').textContent=D.code;
+    $('#roomStatus').textContent=D.active?'Match is live — your friend is playing the same word.':D.connected?'Friend connected. Starting the case…':'Room ready. Share this link and wait for your friend.';
+    $('#inviteLink').value=roomLink(D.code);
+  }
+  $('#createRoom').disabled=D.busy||!!D.peer;
+  $('#joinRoom').disabled=D.busy||!!D.peer;
+  $('#playerName').disabled=!!D.peer;
+  $('#joinCode').disabled=!!D.peer;
+  $('#leaveRoom').hidden=!D.peer&&!D.conn&&!D.active&&!D.busy;
+  $('#leaveRoom').textContent=D.busy?'Cancel connection':G.mode==='multi'?'Leave match':'Leave room';
+}
+function explainPeerError(err){
+  if(err&&err.type==='peer-unavailable')return 'That room is not online. Ask the host to create a new room.';
+  if(err&&err.type==='unavailable-id')return 'This room code is already in use. Create another room.';
+  if(err&&err.type==='browser-incompatible')return 'This browser does not support multiplayer connections.';
+  return 'Could not connect. Check your internet connection and try again.';
+}
+function onPeerError(err){
+  const message=explainPeerError(err);
+  D.busy=false;$('#multiplayerStatus').textContent=message;updateDuelLobby();
+  if(G.mode==='multi'){setStatus(message);renderDuelPanel()}
+  toast(message,2600);
+}
+function randomRoomCode(){
+  const bytes=new Uint8Array(8);
+  if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(bytes);
+  else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);
+  return [...bytes].map(b=>ROOM_CHARS[b%ROOM_CHARS.length]).join('');
+}
+function roomPeerId(code){return 'wordloop-'+String(code).toLowerCase()}
+function createMultiplayerRoom(){
+  if(D.peer||D.busy)return;
+  if(!window.isSecureContext){$('#multiplayerStatus').textContent='Multiplayer needs a secure connection. Open the game over HTTPS.';return}
+  D.busy=true;D.role='host';D.name=getPlayerName();D.code=randomRoomCode();D.previousMode=G.mode;
+  D.opponentName='';D.opponentGuesses=0;D.opponentDone=false;D.opponentWon=false;D.winnerId=null;D.active=false;D.connected=false;
+  updateDuelLobby('Opening a private room…');
+  loadPeerJs().then(()=>{
+    if(D.role!=='host'||!D.busy)return;
+    const peer=new window.Peer(roomPeerId(D.code),{debug:1});D.peer=peer;
+    peer.on('open',()=>{if(D.peer!==peer)return;D.busy=false;setRoomHash(D.code);updateDuelLobby('Your room is ready. Send the invite link to your friend.')});
+    peer.on('connection',conn=>{
+      if(D.peer!==peer){conn.close();return}
+      if(D.conn){conn.on('open',()=>conn.send({type:'reject',reason:'room-full'}));setTimeout(()=>conn.close(),300);return}
+      attachDuelConnection(conn);
+    });
+    peer.on('error',err=>{if(D.peer===peer)onPeerError(err)});
+  }).catch(()=>{
+    peerLoadPromise=null;
+    if(D.role!=='host'||!D.busy)return;
+    D.busy=false;
+    $('#multiplayerStatus').textContent='The multiplayer connection library could not load. Check your internet and try again.';
+    updateDuelLobby();
+  });
+}
+function joinMultiplayerRoom(requestedCode){
+  const code=String(requestedCode||$('#joinCode').value).toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(!/^[A-HJ-NP-Z2-9]{8}$/.test(code)){toast('Enter the 8-letter room code');return}
+  if(D.peer||D.busy)return;
+  if(!window.isSecureContext){$('#multiplayerStatus').textContent='Multiplayer needs a secure connection. Open the game over HTTPS.';return}
+  D.busy=true;D.role='guest';D.name=getPlayerName();D.code=code;D.previousMode=G.mode;
+  D.opponentName='';D.opponentGuesses=0;D.opponentDone=false;D.opponentWon=false;D.winnerId=null;D.active=false;D.connected=false;
+  $('#joinCode').value=code;updateDuelLobby('Connecting to the room…');
+  loadPeerJs().then(()=>{
+    if(D.role!=='guest'||!D.busy)return;
+    const peer=new window.Peer(undefined,{debug:1});D.peer=peer;
+    peer.on('open',()=>{
+      if(D.peer!==peer)return;
+      D.busy=false;
+      const conn=peer.connect(roomPeerId(code),{reliable:true});
+      attachDuelConnection(conn);updateDuelLobby('Connecting to the host…');
+    });
+    peer.on('error',err=>{if(D.peer===peer)onPeerError(err)});
+  }).catch(()=>{
+    peerLoadPromise=null;
+    if(D.role!=='guest'||!D.busy)return;
+    D.busy=false;
+    $('#multiplayerStatus').textContent='The multiplayer connection library could not load. Check your internet and try again.';
+    updateDuelLobby();
+  });
+}
+function attachDuelConnection(conn){
+  D.conn=conn;
+  conn.on('open',()=>{
+    if(D.conn!==conn)return;
+    D.connected=true;D.busy=false;
+    if(D.role==='guest'){
+      sendDuel({type:'join',name:D.name});
+      updateDuelLobby('Connected. Waiting for the host to start the case…');
+    }else updateDuelLobby('Your friend joined. Starting the case…');
+    renderDuelPanel();
+  });
+  conn.on('data',message=>{if(D.conn===conn)handleDuelMessage(message)});
+  conn.on('close',()=>{
+    if(D.conn!==conn)return;
+    D.connected=false;
+    const message=D.active?'Your friend disconnected. Leave the match to return to solo play.':'The room connection closed.';
+    updateDuelLobby(message);if(G.mode==='multi'){renderDuelPanel();toast(message,2600)}
+  });
+  conn.on('error',onPeerError);
+}
+function sendDuel(message){
+  if(!D.conn||!D.connected)return false;
+  try{D.conn.send(message);return true}catch{return false}
+}
+function beginDuel(answer,gameId){
+  if(!/^[A-Z]{5}$/.test(answer)||!ANSWERS.includes(answer))return;
+  if(G.mode!=='multi'){persist();D.previousMode=G.mode}
+  G={mode:'multi',answer,guesses:[],done:false,won:false,hint:null,date:''};
+  cur='';busy=false;round++;VALID.add(answer);D.gameId=gameId;D.active=true;
+  clearRoomHash();
+  $('#multiplayer').close();renderAll();toast('The shared case is open!');
+}
+function startHostDuel(){
+  if(D.role!=='host'||!D.connected||D.active)return;
+  D.opponentName=D.opponentName||'Detective';
+  const answer=ANSWERS[Math.floor(Math.random()*ANSWERS.length)];
+  D.gameId=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
+  beginDuel(answer,D.gameId);
+  sendDuel({type:'start',gameId:D.gameId,answer,hostName:D.name,guestName:D.opponentName});
+  broadcastDuelState();updateDuelLobby('Match started. You can reopen this panel to copy the invite link.');
+}
+function handleDuelMessage(message){
+  if(!message||typeof message!=='object'||typeof message.type!=='string')return;
+  if(message.type==='reject'){
+    const text=message.reason==='room-full'?'That room already has a player. Ask the host to create another room.':'That room is not online. Ask the host to create a new room.';
+    D.busy=false;$('#multiplayerStatus').textContent=text;updateDuelLobby();toast(text,2600);return;
+  }
+  if(D.role==='host'){
+    if(message.type==='join'){
+      if(D.active){sendDuel({type:'reject',reason:'room-full'});return}
+      D.opponentName=cleanPlayerName(message.name);startHostDuel();return;
+    }
+    if(message.type==='leave'){
+      D.connected=false;updateDuelLobby('Your friend left the room.');
+      if(G.mode==='multi')renderDuelPanel();return;
+    }
+    if(message.type==='progress'&&D.active&&message.gameId===D.gameId){
+      D.opponentGuesses=Math.max(0,Math.min(6,Number(message.guesses)||0));
+      D.opponentDone=message.done===true;D.opponentWon=message.won===true;
+      if(D.opponentWon&&!D.winnerId)D.winnerId='guest';
+      broadcastDuelState();renderDuelPanel();
+    }
+    return;
+  }
+  if(message.type==='start'&&D.role==='guest'&&!D.active){
+    D.opponentName=cleanPlayerName(message.hostName);beginDuel(message.answer,String(message.gameId||''));
+    return;
+  }
+  if(message.type==='state'&&D.role==='guest'&&D.active&&message.gameId===D.gameId){
+    D.opponentGuesses=Math.max(0,Math.min(6,Number(message.hostGuesses)||0));
+    D.opponentDone=message.hostDone===true;D.opponentWon=message.hostWon===true;
+    D.winnerId=message.winnerId==='host'||message.winnerId==='guest'?message.winnerId:null;
+    renderDuelPanel();
+  }
+}
+function publishDuelProgress(){
+  if(!D.active)return;
+  const message={type:'progress',gameId:D.gameId,guesses:G.guesses.length,done:G.done,won:G.won};
+  if(D.role==='host'){
+    if(G.won&&!D.winnerId)D.winnerId='host';
+    broadcastDuelState();
+  }else sendDuel(message);
+  renderDuelPanel();
+}
+function broadcastDuelState(){
+  if(D.role!=='host'||!D.active)return;
+  sendDuel({type:'state',gameId:D.gameId,hostGuesses:G.guesses.length,hostDone:G.done,hostWon:G.won,winnerId:D.winnerId});
+}
+function renderDuelPanel(){
+  if(G.mode!=='multi')return;
+  const mine=G.done?(G.won?'Solved':'Finished'):`${G.guesses.length}/6`;
+  const theirs=D.opponentDone?(D.opponentWon?'Solved':'Finished'):`${D.opponentGuesses}/6`;
+  $('#duelYouName').textContent=D.name||'You';
+  $('#duelOpponentName').textContent=D.opponentName||'Opponent';
+  $('#duelMine').textContent=mine;$('#duelTheirs').textContent=D.connected?theirs:'Disconnected';
+  let message;
+  if(!D.connected)message='The room connection was lost. Leave the match to return to solo play.';
+  else if(D.winnerId)message=D.winnerId===D.role?`You solved it first in ${G.guesses.length} guesses!`:`${D.opponentName||'Your opponent'} solved it first.`;
+  else if(G.done&&D.opponentDone)message=G.won||D.opponentWon?'The room is deciding the result…':'Tie game — neither detective solved it.';
+  else if(G.won)message='You solved it. Waiting for the room result…';
+  else if(D.opponentWon)message=`${D.opponentName||'Your opponent'} solved it. Keep guessing to finish your board.`;
+  else if(G.done)message='You used all six guesses. Waiting for your opponent…';
+  else message=`${6-G.guesses.length} guesses left · ${D.opponentGuesses} submitted by your opponent`;
+  $('#duelResult').textContent=message;setStatus(message);
+}
+function leaveDuel(nextMode){
+  const wasActive=G.mode==='multi',restoreMode=D.previousMode||'free';
+  if(D.connected)sendDuel({type:'leave'});
+  const conn=D.conn,peer=D.peer;D.conn=null;D.peer=null;
+  try{if(conn)conn.close()}catch{}try{if(peer)peer.destroy()}catch{}
+  D.role='';D.name='';D.opponentName='';D.code='';D.active=false;D.connected=false;D.busy=false;
+  D.opponentGuesses=0;D.opponentDone=false;D.opponentWon=false;D.winnerId=null;D.gameId='';
+  clearRoomHash();$('#multiplayer').close();
+  if(wasActive)loadGame(restoreMode);
+  if(nextMode&&nextMode!==G.mode)setMode(nextMode);
+  else renderAll();
+  updateDuelLobby('Both players need an internet connection.');
+}
+function autoJoinRoom(){
+  const match=location.hash.match(/^#room=([A-Z0-9]{8})$/i);
+  if(!match)return;
+  $('#joinCode').value=match[1].toUpperCase();openMultiplayer();joinMultiplayerRoom(match[1]);
+}
+
 /* ---------- modes, stats, settings ---------- */
 function setMode(mode,forceNew){
+  if(G.mode==='multi'||D.peer||D.busy){leaveDuel(mode);return}
   if(mode===G.mode&&!forceNew)return;
   if(mode!==G.mode)persist();
   loadGame(mode,forceNew);store.set('wordloop.mode',mode);renderAll();
 }
 function newRound(){
+  if(G.mode==='multi'){leaveDuel();return}
   if(G.mode==='daily'){setMode('free');return}
   if(!G.done&&G.guesses.length>=2&&!confirm('Skip this word and start a new one?'))return;
   setMode('free',true);
 }
 function openStats(){
-  const s=stats[G.mode],max=Math.max(1,...s.dist);
-  $('#statsTitle').textContent=G.mode==='daily'?'Daily stats':'Unlimited stats';
+  const mode=G.mode==='multi'?D.previousMode:G.mode,s=stats[mode],max=Math.max(1,...s.dist);
+  $('#statsTitle').textContent=mode==='daily'?'Daily stats':'Unlimited stats';
   $('#statsGrid').innerHTML=[['Cases',s.played],['Solved %',pct(s).replace('%','')],['Streak',s.streak],['Best',s.best]].map(([l,v])=>`<div><strong>${v}</strong><span>${l}</span></div>`).join('');
   $('#dist').innerHTML=s.dist.map((n,i)=>`<div class="bar${G.done&&G.won&&G.guesses.length===i+1?' now':''}"><b>${i+1}</b><div><i style="width:${n/max*100}%">${n}</i></div></div>`).join('');
   $('#stats').showModal();
@@ -739,6 +1055,10 @@ document.addEventListener('keydown',e=>{
    Keyboard-activated clicks (detail 0) keep focus so tabbing still works. */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button');if(b&&e.detail>0&&!b.closest('dialog'))b.blur()});
 $$('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$$('[data-player-mode]').forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.playerMode==='multi')openMultiplayer();
+  else if(G.mode==='multi'||D.peer||D.conn||D.busy||$('#multiplayer').open)leaveDuel();
+}));
 $('#newGame').addEventListener('click',newRound);
 $('#hintBtn').addEventListener('click',useHint);
 $('#shareBtn').addEventListener('click',showShare);
@@ -747,10 +1067,17 @@ $('#statsBtn').addEventListener('click',openStats);
 $('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').showModal()});
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>$('#'+b.dataset.close).close()));
 $$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+$('#multiplayer').addEventListener('close',renderSide);
 $('#copyShare').addEventListener('click',async()=>{if(await copyText($('#shareCard').textContent)){toast('Result copied!');$('#share').close()}else toast('Copy isn’t available here')});
 $('#nativeShare').addEventListener('click',async()=>{try{await navigator.share({text:$('#shareCard').textContent})}catch{}});
 $('#againBtn').addEventListener('click',()=>{$('#share').close();if(G.mode==='daily')setMode('free');else setMode('free',true)});
-$('#resetStats').addEventListener('click',()=>{if(confirm('Reset your '+(G.mode==='daily'?'daily':'unlimited')+' stats?')){stats[G.mode]=blank();store.set('wordloop.stats2',stats);renderSide();openStats()}});
+$('#resetStats').addEventListener('click',()=>{const mode=G.mode==='multi'?D.previousMode:G.mode;if(confirm('Reset your '+(mode==='daily'?'daily':'unlimited')+' stats?')){stats[mode]=blank();store.set('wordloop.stats2',stats);renderSide();openStats()}});
+$('#createRoom').addEventListener('click',createMultiplayerRoom);
+$('#joinRoom').addEventListener('click',()=>joinMultiplayerRoom());
+$('#joinCode').addEventListener('input',()=>{$('#joinCode').value=$('#joinCode').value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8)});
+$('#joinCode').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();joinMultiplayerRoom()}});
+$('#copyInvite').addEventListener('click',async()=>{if(await copyText($('#inviteLink').value)){toast('Invite link copied!')}else toast('Copy isn’t available here')});
+$('#leaveRoom').addEventListener('click',()=>leaveDuel());
 $$('[data-theme-set]').forEach(b=>b.addEventListener('click',()=>{settings.theme=b.dataset.themeSet;saveSettings()}));
 $('#hardSw').addEventListener('click',()=>{
   if(!settings.hard&&!G.done&&G.guesses.length){toast('Hard mode can only start at the beginning of a case');return}
@@ -763,9 +1090,11 @@ $('#soundSw').addEventListener('click',()=>{settings.sound=!settings.sound;saveS
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
 
 applyTheme();syncSettings();buildKeyboard();
+$('#playerName').value=store.get('wordloop.playerName','');
 loadGame(store.get('wordloop.mode','free'));
 renderAll();
 topUp();addEventListener('online',topUp);
+autoJoinRoom();
 setInterval(tick,1000);
 if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 })();
