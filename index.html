@@ -241,8 +241,8 @@ body.poople-mode .room-badge{display:none}
 .poople-keyboard{max-width:470px;margin:8px auto 0;gap:6px}
 .poople-keyboard .key{height:44px;font-size:12px}
 .poople-keyboard .key.wide{min-width:54px}
-.poople-actions{display:flex;gap:8px;margin-top:12px}
-.poople-actions .btn{flex:1}
+.poople-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.poople-actions #poopleNextWord{grid-column:1/-1}
 .poople-card{padding:18px}
 .poople-card h3,.poople-card h4{margin:0 0 12px;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
 .poople-par{border:1px solid var(--line);border-radius:12px;background:var(--surface2);padding:13px;text-align:center;font-size:12px;color:var(--muted)}
@@ -429,7 +429,7 @@ body.poople-mode .room-badge{display:none}
     <div class="poople-head">
       <button class="btn ghost poople-back" id="backToGames">← All games</button>
       <div class="poople-heading">
-        <p class="poople-kicker">Daily word ladder <span id="poopleNumber"></span></p>
+        <p class="poople-kicker"><span id="poopleModeLabel">Daily word ladder</span> <span id="poopleNumber"></span></p>
         <h2>Make your way to POOP</h2>
         <p>Start at <strong id="poopleStart"></strong>. Change one letter at a time.</p>
       </div>
@@ -437,17 +437,18 @@ body.poople-mode .room-badge{display:none}
     </div>
     <div class="poople-layout">
       <section class="poople-play" aria-label="Poople puzzle">
-        <p class="poople-instructions">Each move must be a four-letter word. Can you solve today’s ladder in fewer moves than par?</p>
+        <p class="poople-instructions">Each move must be a four-letter word. Try to solve the ladder in par moves or fewer.</p>
         <div class="poople-rows" id="poopleRows" role="log" aria-label="Your word ladder" aria-live="polite"></div>
         <div class="poople-status" id="poopleStatus" role="status" aria-live="polite"></div>
         <div class="keyboard poople-keyboard" id="poopleKeyboard" aria-label="Poople on-screen keyboard"></div>
         <div class="poople-actions">
           <button class="btn ghost" id="poopleShare" hidden>Share result</button>
           <button class="btn ghost" id="poopleShowPath" hidden>Show shortest path</button>
+          <button class="btn primary" id="poopleNextWord" hidden>Next word</button>
         </div>
       </section>
       <aside class="poople-card">
-        <h3>Today’s challenge</h3>
+        <h3 id="poopleChallengeTitle">Today’s challenge</h3>
         <div class="poople-par">Par <strong id="pooplePar">—</strong> <span>moves</span></div>
         <div class="poople-stats">
           <div><strong id="poopleWins">0</strong><span>solved</span></div>
@@ -1347,30 +1348,33 @@ const POOPLE_STARTS='CASH GENE FOOD WORD COLD WARM GAME BARK BAKE BELL FALL MATE
 const P={active:false,number:0,start:'',par:0,guesses:[],current:'',done:false,won:false,recorded:false,showPath:false,stats:null};
 const blankPoopleStats=()=>({wins:0,extraTotal:0,streak:0,best:0,lastWin:'',dist:Array(7).fill(0)});
 function poopleStats(){const s=Object.assign(blankPoopleStats(),store.get('wordloop.poople.stats',{}));s.dist=Array.isArray(s.dist)?Array.from({length:7},(_,i)=>Number(s.dist[i])||0):Array(7).fill(0);return s}
-function poopleDaily(){const [y,m,d]=dayKey().split('-').map(Number),today=Date.UTC(y,m-1,d),anchor=Date.UTC(2026,9,22),offset=Math.floor((today-anchor)/86400000),idx=((offset%POOPLE_STARTS.length)+POOPLE_STARTS.length)%POOPLE_STARTS.length;return{offset,number:434+offset,start:POOPLE_STARTS[idx]||'GENE'}}
+function poopleStartForNumber(number){const offset=number-434,idx=((offset%POOPLE_STARTS.length)+POOPLE_STARTS.length)%POOPLE_STARTS.length;return POOPLE_STARTS[idx]||'GENE'}
+function poopleDaily(){const [y,m,d]=dayKey().split('-').map(Number),today=Date.UTC(y,m-1,d),anchor=Date.UTC(2026,9,22),offset=Math.floor((today-anchor)/86400000),number=434+offset;return{offset,number,start:poopleStartForNumber(number)}}
 function oneLetterApart(a,b){let diff=0;for(let i=0;i<4;i++)if(a[i]!==b[i]&&++diff>1)return false;return diff===1}
 function poopleSave(){store.set('wordloop.poople.game',{date:dayKey(),number:P.number,start:P.start,guesses:P.guesses,done:P.done,won:P.won,recorded:P.recorded})}
 function loadPooplePuzzle(){
   const daily=poopleDaily(),saved=store.get('wordloop.poople.game',null);P.number=daily.number;P.start=daily.start;P.par=poopleDistance.get(P.start)||0;P.guesses=[];P.current='';P.done=false;P.won=false;P.recorded=false;P.showPath=false;P.stats=poopleStats();
-  if(saved&&saved.date===dayKey()&&saved.number===P.number&&saved.start===P.start){let prev=P.start;for(const raw of Array.isArray(saved.guesses)?saved.guesses:[]){const w=String(raw).toUpperCase();if(!POOPLE_WORDS.has(w)||!oneLetterApart(prev,w))break;P.guesses.push(w);prev=w;if(w===POOP)break}P.won=P.guesses.at(-1)===POOP;P.done=P.won;P.recorded=!!saved.recorded&&P.won}
-  $('#poopleNumber').textContent='#'+P.number;$('#poopleStart').textContent=P.start;$('#pooplePar').textContent=P.par;poopleRender();poopleStatsRender();
+  if(saved&&saved.date===dayKey()&&Number.isInteger(saved.number)&&saved.number>=daily.number&&saved.start===poopleStartForNumber(saved.number)){P.number=saved.number;P.start=saved.start;P.par=poopleDistance.get(P.start)||0;let prev=P.start;for(const raw of Array.isArray(saved.guesses)?saved.guesses:[]){const w=String(raw).toUpperCase();if(!POOPLE_WORDS.has(w)||!oneLetterApart(prev,w))break;P.guesses.push(w);prev=w;if(w===POOP)break}P.won=P.guesses.at(-1)===POOP;P.done=P.won;P.recorded=!!saved.recorded&&P.won}
+  poopleSyncChallenge();poopleRender();poopleStatsRender();
 }
 function poopleMakeRow(word,label,isCurrent){const row=document.createElement('div');row.className='poople-row'+(isCurrent?' current':'');const number=document.createElement('span');number.className='poople-row-label';number.textContent=isCurrent?'…':label;row.append(number);for(let i=0;i<4;i++){const tile=document.createElement('span'),ch=word[i]||'';tile.className='poople-tile'+(ch?' p-filled':'');tile.textContent=ch;if(ch&&ch===POOP[i])tile.classList.add('p-match');else if(ch&&POOP.includes(ch))tile.classList.add('p-letter');tile.setAttribute('aria-label',`Letter ${i+1}: ${ch||'empty'}`);row.append(tile)}return row}
 function poopleRender(){
   const rows=$('#poopleRows');rows.replaceChildren();rows.append(poopleMakeRow(P.start,'START',false));P.guesses.forEach((w,i)=>rows.append(poopleMakeRow(w,String(i+1).padStart(2,'0'),false)));if(!P.done)rows.append(poopleMakeRow(P.current,'NEXT',true));rows.scrollTop=rows.scrollHeight;
   $('#poopleStatus').textContent=P.won?`Solved in ${P.guesses.length} move${P.guesses.length===1?'':'s'} · par ${P.par}.`:`${P.guesses.length} move${P.guesses.length===1?'':'s'} · par ${P.par}`;
-  $('#poopleShare').hidden=!P.won;$('#poopleShowPath').hidden=!P.won;$$('[data-poople-key]').forEach(b=>b.disabled=P.done);
+  $('#poopleShare').hidden=!P.won;$('#poopleShowPath').hidden=!P.won;$('#poopleNextWord').hidden=!P.won;$$('[data-poople-key]').forEach(b=>b.disabled=P.done);
   if(P.won&&P.showPath){let p=$('#poopleShortestPath');if(!p){p=document.createElement('p');p.id='poopleShortestPath';p.className='poople-path';$('#poopleRows').after(p)}p.textContent='Shortest path: '+pooplePath(P.start).join(' → ')}else{const p=$('#poopleShortestPath');if(p)p.remove()}
 }
+function poopleSyncChallenge(){const practice=P.number!==poopleDaily().number;$('#poopleNumber').textContent='#'+P.number;$('#poopleModeLabel').textContent=practice?'Practice ladder':'Daily word ladder';$('#poopleChallengeTitle').textContent=practice?'Practice ladder':'Today’s challenge';$('#poopleStart').textContent=P.start;$('#pooplePar').textContent=P.par}
+function poopleNextWord(){if(!P.won)return;P.number++;P.start=poopleStartForNumber(P.number);P.par=poopleDistance.get(P.start)||0;P.guesses=[];P.current='';P.done=false;P.won=false;P.recorded=false;P.showPath=false;P.stats=poopleStats();$('#poopleShowPath').textContent='Show shortest path';poopleSyncChallenge();poopleSave();poopleRender();poopleStatsRender()}
 function pooplePath(start){const path=[start];let w=start;while(w!==POOP){const d=poopleDistance.get(w);const next=[...poopleNeighbors(w)].filter(n=>poopleDistance.get(n)===d-1).sort()[0];if(!next)break;path.push(next);w=next}return path}
 function poopleType(letter){if(P.done||P.current.length>=4)return;P.current+=letter.toUpperCase();poopleRender()}
 function poopleBackspace(){if(P.done||!P.current)return;P.current=P.current.slice(0,-1);poopleRender()}
 function poopleKey(key){if(P.done)return;if(key==='ENTER'){poopleSubmit();return}if(key==='BACK'){poopleBackspace();return}if(/^[A-Z]$/.test(key))poopleType(key)}
 function buildPoopleKeyboard(){const root=$('#poopleKeyboard');root.replaceChildren();KEYS.forEach((letters,i)=>{const line=document.createElement('div');line.className='keyrow';if(i===2)addPoopleKey(line,'ENTER','wide');for(const ch of letters)addPoopleKey(line,ch,'');if(i===2)addPoopleKey(line,'⌫','wide','BACK');root.append(line)})}
 function addPoopleKey(parent,label,extra,key=label){const b=document.createElement('button');b.type='button';b.className=('key '+extra).trim();b.textContent=label;b.setAttribute('aria-label',key==='ENTER'?'Enter':key==='BACK'?'Backspace':key);b.dataset.poopleKey=key;b.addEventListener('click',()=>{poopleKey(key);b.blur()});parent.append(b)}
-function poopleRecordWin(){if(P.recorded)return;const today=dayKey(),s=P.stats||poopleStats(),extra=Math.max(0,P.guesses.length-P.par);s.wins++;s.extraTotal+=extra;s.dist[Math.min(6,extra)]++;if(s.lastWin===today){/* already credited today */s.wins--;s.extraTotal-=extra;s.dist[Math.min(6,extra)]--}else{const [y,m,d]=today.split('-').map(Number),yesterday=new Date(Date.UTC(y,m-1,d-1)).toISOString().slice(0,10);s.streak=s.lastWin===yesterday?s.streak+1:1;s.best=Math.max(s.best,s.streak);s.lastWin=today}P.stats=s;P.recorded=true;store.set('wordloop.poople.stats',s)}
+function poopleRecordWin(){if(P.recorded)return;const today=dayKey(),s=P.stats||poopleStats(),extra=Math.max(0,P.guesses.length-P.par);s.wins++;s.extraTotal+=extra;s.dist[Math.min(6,extra)]++;if(s.lastWin!==today){const [y,m,d]=today.split('-').map(Number),yesterday=new Date(Date.UTC(y,m-1,d-1)).toISOString().slice(0,10);s.streak=s.lastWin===yesterday?s.streak+1:1;s.best=Math.max(s.best,s.streak);s.lastWin=today}P.stats=s;P.recorded=true;store.set('wordloop.poople.stats',s)}
 function poopleSubmit(){if(P.done)return;if(P.current.length!==4){toast('Enter a four-letter word');return}const guess=P.current;if(!POOPLE_WORDS.has(guess)){toast('That word is not in the built-in word list');return}const previous=P.guesses.at(-1)||P.start;if(!oneLetterApart(previous,guess)){toast('Change exactly one letter');return}P.guesses.push(guess);P.current='';if(guess===POOP){P.done=true;P.won=true;poopleRecordWin()}poopleSave();poopleRender();poopleStatsRender()}
-function poopleShareText(){const extra=Math.max(0,P.guesses.length-P.par),lines=P.guesses.map(w=>[...w].map((ch,i)=>ch===POOP[i]?'🟫':POOP.includes(ch)?'🟨':'⬜').join('')).join('\n');return`Poople #${P.number} · ${P.guesses.length} moves (par ${P.par}, +${extra})\n\n${lines}`}
+function poopleShareText(){const extra=Math.max(0,P.guesses.length-P.par),label=P.number===poopleDaily().number?'Poople':'Poople practice',lines=P.guesses.map(w=>[...w].map((ch,i)=>ch===POOP[i]?'🟫':POOP.includes(ch)?'🟨':'⬜').join('')).join('\n');return`${label} #${P.number} · ${P.guesses.length} moves (par ${P.par}, +${extra})\n\n${lines}`}
 function poopleStatsRender(){const s=P.stats||poopleStats();$('#poopleWins').textContent=s.wins;$('#poopleAverage').textContent=s.wins?(s.extraTotal/s.wins).toFixed(1):'0';$('#poopleStreak').textContent=s.streak;const max=Math.max(1,...s.dist);$('#poopleDistribution').innerHTML=s.dist.map((n,i)=>`<div class="poople-dist-row${P.won&&Math.min(6,Math.max(0,P.guesses.length-P.par))===i?' latest':''}"><b>${i===6?'6+':i}</b><div class="poople-dist-track"><i class="poople-dist-bar" style="width:${n?Math.max(12,n/max*100):0}%">${n}</i></div></div>`).join('')}
 function openPoople(){
   $('#gameChooser').close();document.body.classList.add('poople-mode');$('#poopleView').hidden=false;P.active=true;
@@ -1381,6 +1385,7 @@ function backToGameChooser(){P.active=false;document.body.classList.remove('poop
 function openPoopleStats(){const s=P.stats||poopleStats(),avg=s.wins?(s.extraTotal/s.wins).toFixed(1):'0';$('#poopleStatsGrid').innerHTML=[['Solved',s.wins],['Avg. extra',avg],['Streak',s.streak],['Best',s.best]].map(([l,v])=>`<div><strong>${v}</strong><span>${l}</span></div>`).join('');const max=Math.max(1,...s.dist);$('#poopleStatsDist').innerHTML=s.dist.map((n,i)=>`<div class="bar${P.won&&Math.min(6,Math.max(0,P.guesses.length-P.par))===i?' now':''}"><b>${i===6?'6+':i}</b><div><i style="width:${n?Math.max(12,n/max*100):0}%">${n}</i></div></div>`).join('');$('#poopleStats').showModal()}
 $('#poopleShowPath').addEventListener('click',()=>{P.showPath=!P.showPath;$('#poopleShowPath').textContent=P.showPath?'Hide shortest path':'Show shortest path';poopleRender()});
 $('#poopleShare').addEventListener('click',async()=>{if(await copyText(poopleShareText()))toast('Poople result copied!');else toast('Copy isn’t available here')});
+$('#poopleNextWord').addEventListener('click',poopleNextWord);
 $('#backToGames').addEventListener('click',backToGameChooser);
 $('#resetPoopleStats').addEventListener('click',()=>{if(confirm('Reset your Poople stats?')){P.stats=blankPoopleStats();store.set('wordloop.poople.stats',P.stats);poopleStatsRender();openPoopleStats()}});
 buildPoopleKeyboard();

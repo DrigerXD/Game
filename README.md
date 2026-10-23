@@ -5,7 +5,7 @@ A free word game collection with five-letter detective cases and a daily four-le
 ## Features
 - **Word Detective:** unlimited cases, a shared Daily word, hints, Hard mode, statistics and emoji results
 - **Co-op multiplayer:** private rooms for two to four players, sharing one board and six guesses
-- **Poople:** an in-app daily word ladder. Change one letter per move to reach POOP, with local progress, stats and an offline word list
+- **Poople:** an in-app daily word ladder. Change one letter per move to reach POOP, with local progress, stats, an offline word list, and more practice ladders from the **Next word** button after a solve
 - Light, dark and auto themes, a colorblind-friendly palette, sound effects and keyboard/touch input
 - Installable as a PWA; solo modes work offline after the first visit
 
