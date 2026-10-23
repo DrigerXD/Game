@@ -57,6 +57,8 @@ button{font:inherit;color:inherit}
 .brand h1{font-size:21px;margin:0;letter-spacing:-.7px}
 .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
 .top-actions{display:flex;gap:8px}
+.room-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:var(--surface2);color:var(--ink);font:700 10px 'DM Mono',monospace;white-space:nowrap;cursor:pointer}
+.room-badge:hover{border-color:var(--green)}
 .iconbtn{width:42px;height:42px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);border-radius:13px;cursor:pointer;transition:transform .12s,background .15s}
 .iconbtn:hover{background:var(--surface2)}
 .iconbtn:active{transform:scale(.94)}
@@ -210,6 +212,13 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
   .wrap{padding:14px 12px 24px}
   .top{padding-bottom:12px}
   .brand h1{font-size:19px}
+  .top.has-room .brand{gap:6px}
+  .top.has-room .brand h1{font-size:17px}
+  .top.has-room .brand p{display:none}
+  .top.has-room .logo svg{width:24px;height:24px}
+  .top-actions{gap:4px}
+  .room-badge{padding:6px 8px;font-size:9px}
+  .iconbtn{width:32px;height:32px}
   .hero{padding:12px 0 6px}
   .hero h2{font-size:22px}
   .hero p{display:none}
@@ -243,6 +252,7 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
       <div><h1>Word Detective</h1><p>Every word is a case.</p></div>
     </div>
     <div class="top-actions">
+      <button class="room-badge" id="roomBadge" aria-label="Copy room code" title="Copy room code" hidden>ROOM <span id="roomBadgeCode"></span></button>
       <button class="iconbtn" id="helpBtn" aria-label="How to play"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/></svg></button>
       <button class="iconbtn" id="statsBtn" aria-label="Your stats"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V4M19 20v-5"/></svg></button>
       <button class="iconbtn" id="settingsBtn" aria-label="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
@@ -619,8 +629,13 @@ const pct=s=>s.played?Math.round(s.wins/s.played*100)+'%':'0%';
 function renderSide(){
   const multi=G.mode==='multi',daily=G.mode==='daily',s=stats[multi?'free':G.mode];
   const multiplayerSelected=multi||!!D.peer||!!D.conn||D.busy||$('#multiplayer').open;
+  $('.top').classList.toggle('has-room',!!D.code);
+  $('#roomBadge').hidden=!D.code;
+  $('#roomBadgeCode').textContent=D.code;
   $('#statsBtn').disabled=multi;
+  $('#statsBtn').hidden=multiplayerSelected;
   $('.stats').hidden=multi;$('#duelPanel').hidden=!multi;
+  $$('.key').forEach(k=>{k.disabled=multi&&(!D.active||!D.connected||G.done)});
   $('#played').textContent=s.played;$('#winrate').textContent=pct(s);$('#streak').textContent=s.streak;
   $('#sideTitle').textContent=multi?'Head-to-head':daily?'Daily case streak':'Case file';
   $('#hintBtn').hidden=multi;$('#hintBtn').disabled=G.done||!!G.hint;
@@ -649,10 +664,10 @@ function renderAll(){
 /* ---------- input ---------- */
 function pop(t){t.classList.remove('pop');void t.offsetWidth;t.classList.add('pop')}
 function type(l){
-  if(G.done||busy||cur.length>=5||(G.mode==='multi'&&!D.connected))return;
+  if(G.done||busy||cur.length>=5||(G.mode==='multi'&&(!D.connected||!D.active)))return;
   cur+=l;paintRow();pop(grid[G.guesses.length][cur.length-1]);tone(520,.04,'triangle',.03);
 }
-function backspace(){if(G.done||busy||!cur||(G.mode==='multi'&&!D.connected))return;cur=cur.slice(0,-1);paintRow()}
+function backspace(){if(G.done||busy||!cur||(G.mode==='multi'&&(!D.connected||!D.active)))return;cur=cur.slice(0,-1);paintRow()}
 let toastT;
 function toast(msg,ms=1800){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),ms)}
 function shake(){
@@ -676,6 +691,7 @@ function idleStatus(){
 }
 async function submit(){
   if(G.done||busy)return;
+  if(G.mode==='multi'&&!D.active){toast('Waiting for your friend to join');return}
   if(G.mode==='multi'&&!D.connected){toast('The room is disconnected');return}
   if(cur.length<5){shake();toast('Need five letters');return}
   if(!VALID.has(cur)){
@@ -823,6 +839,9 @@ function openMultiplayer(){
 }
 function updateDuelLobby(message){
   if(message!==undefined)$('#multiplayerStatus').textContent=message;
+  $('.top').classList.toggle('has-room',!!D.code);
+  $('#roomBadge').hidden=!D.code;
+  $('#roomBadgeCode').textContent=D.code;
   const hosting=D.role==='host'&&!!D.code;
   $('#roomBox').hidden=!hosting;
   if(hosting){
@@ -865,7 +884,11 @@ function createMultiplayerRoom(){
   loadPeerJs().then(()=>{
     if(D.role!=='host'||!D.busy)return;
     const peer=new window.Peer(roomPeerId(D.code),{debug:1});D.peer=peer;
-    peer.on('open',()=>{if(D.peer!==peer)return;D.busy=false;setRoomHash(D.code);updateDuelLobby('Your room is ready. Send the invite link to your friend.')});
+    peer.on('open',()=>{
+      if(D.peer!==peer)return;
+      D.busy=false;setRoomHash(D.code);updateDuelLobby('Room ready. You joined—share the invite link with your friend.');
+      enterHostWaiting();
+    });
     peer.on('connection',conn=>{
       if(D.peer!==peer){conn.close();return}
       if(D.conn){conn.on('open',()=>conn.send({type:'reject',reason:'room-full'}));setTimeout(()=>conn.close(),300);return}
@@ -929,6 +952,12 @@ function attachDuelConnection(conn){
 function sendDuel(message){
   if(!D.conn||!D.connected)return false;
   try{D.conn.send(message);return true}catch{return false}
+}
+function enterHostWaiting(){
+  if(G.mode!=='multi'){persist();D.previousMode=G.mode}
+  G={mode:'multi',answer:'',guesses:[],done:false,won:false,hint:null,date:''};
+  cur='';busy=false;round++;
+  $('#multiplayer').close();renderAll();
 }
 function beginDuel(answer,gameId){
   if(!/^[A-Z]{5}$/.test(answer)||!ANSWERS.includes(answer))return;
@@ -996,13 +1025,14 @@ function broadcastDuelState(){
 }
 function renderDuelPanel(){
   if(G.mode!=='multi')return;
-  const mine=G.done?(G.won?'Solved':'Finished'):`${G.guesses.length}/6`;
-  const theirs=D.opponentDone?(D.opponentWon?'Solved':'Finished'):`${D.opponentGuesses}/6`;
+  const mine=!D.active?'Waiting':G.done?(G.won?'Solved':'Finished'):`${G.guesses.length}/6`;
+  const theirs=!D.active?(D.connected?'Connected':'Waiting'):D.opponentDone?(D.opponentWon?'Solved':'Finished'):`${D.opponentGuesses}/6`;
   $('#duelYouName').textContent=D.name||'You';
   $('#duelOpponentName').textContent=D.opponentName||'Opponent';
-  $('#duelMine').textContent=mine;$('#duelTheirs').textContent=D.connected?theirs:'Disconnected';
+  $('#duelMine').textContent=mine;$('#duelTheirs').textContent=!D.active?(D.connected?'Connected':'Waiting'):D.connected?theirs:'Disconnected';
   let message;
-  if(!D.connected)message='The room connection was lost. Leave the match to return to solo play.';
+  if(!D.active)message=D.connected?'Your friend joined. Starting the shared case…':'Room ready. Share the code in the top-right corner and wait for your friend.';
+  else if(!D.connected)message='The room connection was lost. Leave the match to return to solo play.';
   else if(D.winnerId)message=D.winnerId===D.role?`You solved it first in ${G.guesses.length} guesses!`:`${D.opponentName||'Your opponent'} solved it first.`;
   else if(G.done&&D.opponentDone)message=G.won||D.opponentWon?'The room is deciding the result…':'Tie game — neither detective solved it.';
   else if(G.won)message='You solved it. Waiting for the room result…';
@@ -1099,6 +1129,7 @@ $('#shareBtn').addEventListener('click',showShare);
 $('#helpBtn').addEventListener('click',()=>$('#help').showModal());
 $('#statsBtn').addEventListener('click',openStats);
 $('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').showModal()});
+$('#roomBadge').addEventListener('click',async()=>{if(await copyText(D.code))toast('Room code copied!');else toast('Copy isn’t available here')});
 $('#chooseSingle').addEventListener('click',()=>$('#welcome').close());
 $('#chooseMultiplayer').addEventListener('click',()=>{ $('#welcome').close();openMultiplayer() });
 $('#welcome').addEventListener('cancel',e=>e.preventDefault());
