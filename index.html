@@ -118,8 +118,8 @@ button{font:inherit;color:inherit}
 .team-names{font-size:10.5px;line-height:1.5;color:var(--muted);margin:0;text-align:center;overflow-wrap:anywhere}
 .duel-result{font-size:11.5px;line-height:1.5;color:var(--muted);margin:10px 0 0;text-align:center}
 .field{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:700;margin:14px 0}
-.field input{width:100%;border:1px solid var(--line);border-radius:11px;background:var(--surface2);color:var(--ink);padding:11px 12px;font:500 14px 'DM Sans',sans-serif;outline:none}
-.field input:focus,.invite-link:focus{border-color:var(--green)}
+.field input,.field select{width:100%;border:1px solid var(--line);border-radius:11px;background:var(--surface2);color:var(--ink);padding:11px 12px;font:500 14px 'DM Sans',sans-serif;outline:none}
+.field input:focus,.field select:focus,.invite-link:focus{border-color:var(--green)}
 .invite-link{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);padding:9px 10px;font:11px 'DM Mono',monospace}
 .duel-join{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .duel-join .field{margin:10px 0 0}
@@ -274,7 +274,7 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
       <button class="start-option" id="chooseMultiplayer">
         <span class="start-icon" aria-hidden="true">↗</span>
         <strong>Multiplayer</strong>
-        <span>Invite up to three friends and solve the word together.</span>
+        <span>Choose a room size and solve the word together.</span>
       </button>
     </div>
   </div>
@@ -350,8 +350,9 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 
 <dialog id="multiplayer"><div class="dlg">
   <div class="modalhead"><h2>Play together</h2><button class="close" data-close="multiplayer" aria-label="Close">×</button></div>
-  <p class="modalcopy">Create a private room and invite up to three friends. Everyone shares one board and six guesses; each guess appears for the whole team. Keep the host page open until the case ends.</p>
+  <p class="modalcopy">Choose how many players can join your private room. Everyone shares one board and six guesses; each guess appears for the whole team. Keep the host page open until the case ends.</p>
   <label class="field">Your name<input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Detective"></label>
+  <label class="field">Room size<select id="playerCount"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option></select></label>
   <button class="btn primary" id="createRoom">Create room</button>
   <div class="duel-join">
     <label class="field">Room code<input id="joinCode" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="8 letter code"></label>
@@ -498,7 +499,7 @@ async function topUp(){
 let G={mode:'free',answer:'',guesses:[],done:false,won:false,hint:null,date:''};
 let cur='',grid=[],busy=false,round=0;
 const MAX_PLAYERS=4;
-const D={peer:null,conn:null,connections:new Map(),players:[],role:'',name:'',code:'',previousMode:'free',active:false,connected:false,busy:false,
+const D={peer:null,conn:null,connections:new Map(),players:[],maxPlayers:MAX_PLAYERS,role:'',name:'',code:'',previousMode:'free',active:false,connected:false,busy:false,
   sharedQueue:[],nextGuessId:0,pendingGuessId:null,gameId:''};
 
 const keyOf=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -859,12 +860,13 @@ function updateDuelLobby(message){
   $('#roomBox').hidden=!hosting;
   if(hosting){
     $('#roomCode').textContent=D.code;
-    $('#roomStatus').textContent=D.active?`${D.players.length}/${MAX_PLAYERS} players in the shared case.`:`Room ready. Invite up to ${MAX_PLAYERS-1} friends with the link.`;
+    $('#roomStatus').textContent=D.active?`${D.players.length}/${D.maxPlayers} players in the shared case.`:`Room ready. Invite up to ${D.maxPlayers-1} friends with the link.`;
     $('#inviteLink').value=roomLink(D.code);
   }
   $('#createRoom').disabled=D.busy||!!D.peer;
   $('#joinRoom').disabled=D.busy||!!D.peer;
   $('#playerName').disabled=!!D.peer;
+  $('#playerCount').disabled=D.busy||!!D.peer;
   $('#joinCode').disabled=!!D.peer;
   $('#leaveRoom').hidden=!D.peer&&!D.conn&&!D.active&&!D.busy;
   $('#leaveRoom').textContent=D.busy?'Cancel connection':G.mode==='multi'?'Leave match':'Leave room';
@@ -891,7 +893,7 @@ function roomPeerId(code){return 'wordloop-'+String(code).toLowerCase()}
 function createMultiplayerRoom(){
   if(D.peer||D.busy)return;
   if(!window.isSecureContext){$('#multiplayerStatus').textContent='Multiplayer needs a secure connection. Open the game over HTTPS.';return}
-  D.busy=true;D.role='host';D.name=getPlayerName();D.code=randomRoomCode();D.previousMode=G.mode;
+  D.busy=true;D.role='host';D.name=getPlayerName();D.code=randomRoomCode();D.maxPlayers=Math.min(MAX_PLAYERS,Math.max(2,Number($('#playerCount').value)||MAX_PLAYERS));D.previousMode=G.mode;
   D.connections=new Map();D.players=[{id:'host',name:D.name}];D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.active=false;D.connected=false;
   updateDuelLobby('Opening a private room…');
   loadPeerJs().then(()=>{
@@ -899,7 +901,7 @@ function createMultiplayerRoom(){
     const peer=new window.Peer(roomPeerId(D.code),{debug:1});D.peer=peer;
     peer.on('open',()=>{
       if(D.peer!==peer)return;
-      D.busy=false;setRoomHash(D.code);updateDuelLobby(`Room ready. You joined—invite up to ${MAX_PLAYERS-1} more players.`);
+      D.busy=false;setRoomHash(D.code);updateDuelLobby(`Room ready. You joined—invite up to ${D.maxPlayers-1} more players.`);
       enterHostWaiting();
     });
     peer.on('connection',conn=>{
@@ -922,7 +924,7 @@ function joinMultiplayerRoom(requestedCode){
   if(D.peer||D.busy)return;
   if(!window.isSecureContext){$('#multiplayerStatus').textContent='Multiplayer needs a secure connection. Open the game over HTTPS.';return}
   D.busy=true;D.role='guest';D.name=getPlayerName();D.code=code;D.previousMode=G.mode;
-  D.connections=new Map();D.players=[];D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.active=false;D.connected=false;
+  D.connections=new Map();D.players=[];D.maxPlayers=MAX_PLAYERS;D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.active=false;D.connected=false;
   $('#joinCode').value=code;updateDuelLobby('Connecting to the room…');
   loadPeerJs().then(()=>{
     if(D.role!=='guest'||!D.busy)return;
@@ -1013,14 +1015,15 @@ function startHostDuel(){
   const answer=ANSWERS[Math.floor(Math.random()*ANSWERS.length)];
   D.gameId=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
   beginDuel(answer,D.gameId);
-  const startMessage={type:'start',gameId:D.gameId,answer,hostName:D.name,players:D.players};
+  const startMessage={type:'start',gameId:D.gameId,answer,hostName:D.name,players:D.players,maxPlayers:D.maxPlayers};
   D.players.filter(player=>player.id!=='host').forEach(player=>sendDuel(startMessage,D.connections.get(player.id)));
   broadcastDuelState();updateDuelLobby('Team case started. Share the code to invite more players.');
 }
 function handleDuelMessage(message,conn){
   if(!message||typeof message!=='object'||typeof message.type!=='string')return;
   if(message.type==='reject'){
-    const text=message.reason==='room-full'?`That room already has ${MAX_PLAYERS} players. Ask the host to create another room.`:'That room is not online. Ask the host to create a new room.';
+    if(Number.isInteger(message.maxPlayers)&&message.maxPlayers>=2&&message.maxPlayers<=MAX_PLAYERS)D.maxPlayers=message.maxPlayers;
+    const text=message.reason==='room-full'?`That room already has ${D.maxPlayers} players. Ask the host to create another room.`:'That room is not online. Ask the host to create a new room.';
     D.busy=false;$('#multiplayerStatus').textContent=text;
     if(D.conn){const rejectedConnection=D.conn;D.conn=null;D.connected=false;try{rejectedConnection.close()}catch{}}
     updateDuelLobby();toast(text,2600);return;
@@ -1028,13 +1031,13 @@ function handleDuelMessage(message,conn){
   if(D.role==='host'){
     if(message.type==='join'){
       if(!conn||D.connections.get(conn.peer)!==conn||D.players.some(player=>player.id===conn.peer))return;
-      if(D.players.length>=MAX_PLAYERS){
-        sendDuel({type:'reject',reason:'room-full'},conn);
+      if(D.players.length>=D.maxPlayers){
+        sendDuel({type:'reject',reason:'room-full',maxPlayers:D.maxPlayers},conn);
         setTimeout(()=>conn.close(),300);return;
       }
       D.players.push({id:conn.peer,name:cleanPlayerName(message.name)});D.connected=D.connections.size>0;
       if(!D.active){startHostDuel();return}
-      sendDuel({type:'start',gameId:D.gameId,answer:G.answer,hostName:D.name,players:D.players},conn);
+      sendDuel({type:'start',gameId:D.gameId,answer:G.answer,hostName:D.name,players:D.players,maxPlayers:D.maxPlayers},conn);
       broadcastDuelState();updateDuelLobby('Team case is live. Share the code to invite more players.');renderAll();return;
     }
     if(message.type==='leave'){
@@ -1047,6 +1050,7 @@ function handleDuelMessage(message,conn){
     return;
   }
   if(message.type==='start'&&D.role==='guest'&&!D.active){
+    if(Number.isInteger(message.maxPlayers)&&message.maxPlayers>=2&&message.maxPlayers<=MAX_PLAYERS)D.maxPlayers=message.maxPlayers;
     D.players=cleanPlayerList(message.players);beginDuel(message.answer,String(message.gameId||''));
     return;
   }
@@ -1054,6 +1058,7 @@ function handleDuelMessage(message,conn){
     G.guesses=Array.isArray(message.guesses)?message.guesses.filter(word=>typeof word==='string'&&/^[A-Z]{5}$/.test(word)).slice(0,6):[];
     G.done=message.done===true||G.guesses.length===6;G.won=G.done&&message.won===true;
     if(Array.isArray(message.players))D.players=cleanPlayerList(message.players);
+    if(Number.isInteger(message.maxPlayers)&&message.maxPlayers>=2&&message.maxPlayers<=MAX_PLAYERS)D.maxPlayers=message.maxPlayers;
     if(message.requesterId===D.peer.id&&message.requestId===D.pendingGuessId&&D.pendingGuessId!==null){
       D.pendingGuessId=null;busy=false;
       if(message.accepted===false)toast('That guess could not be added to the shared board.');
@@ -1091,7 +1096,7 @@ function processSharedGuessQueue(){
 }
 function broadcastDuelState(requestId,accepted,requesterId){
   if(D.role!=='host'||!D.active)return;
-  const state={type:'state',gameId:D.gameId,guesses:G.guesses.slice(),done:G.done,won:G.won,players:D.players};
+  const state={type:'state',gameId:D.gameId,guesses:G.guesses.slice(),done:G.done,won:G.won,players:D.players,maxPlayers:D.maxPlayers};
   if(requestId!==undefined){state.requestId=requestId;state.accepted=accepted;state.requesterId=requesterId}
   sendDuel(state);
 }
@@ -1101,11 +1106,11 @@ function renderDuelPanel(){
   $('#duelYouName').textContent='Shared guesses';
   $('#duelOpponentName').textContent='Players in room';
   $('#duelMine').textContent=mine;
-  $('#duelTheirs').textContent=`${D.players.length}/${MAX_PLAYERS}`;
+  $('#duelTheirs').textContent=`${D.players.length}/${D.maxPlayers}`;
   $('#teamNames').textContent=D.players.map(player=>player.name).join(' · ');
   let message;
-  if(!D.active)message=D.role==='host'?`Room ready. Share the code in the top-right corner; up to ${MAX_PLAYERS-1} friends can join.`:'Connected. Waiting for the host to start the team case…';
-  else if(!D.connected)message=D.role==='host'?`No teammates are connected. Share the room code to continue the case with up to ${MAX_PLAYERS} players.`:'The room connection was lost. Leave the case to return to solo play.';
+  if(!D.active)message=D.role==='host'?`Room ready. Share the code in the top-right corner; up to ${D.maxPlayers-1} friends can join.`:'Connected. Waiting for the host to start the team case…';
+  else if(!D.connected)message=D.role==='host'?`No teammates are connected. Share the room code to continue the case with up to ${D.maxPlayers} players.`:'The room connection was lost. Leave the case to return to solo play.';
   else if(G.won)message=`You solved it together in ${G.guesses.length} guess${G.guesses.length===1?'':'es'}!`;
   else if(G.done)message=`Your team used all six guesses. The word was ${G.answer}.`;
   else message=`${6-G.guesses.length} shared guesses left · ${D.players.length} player${D.players.length===1?'':'s'} working together.`;
@@ -1117,7 +1122,7 @@ function leaveDuel(nextMode){
   const conn=D.conn,peer=D.peer,connections=[...D.connections.values()];D.conn=null;D.peer=null;D.connections.clear();
   try{if(conn)conn.close()}catch{}connections.forEach(connection=>{try{connection.close()}catch{}});try{if(peer)peer.destroy()}catch{}
   D.role='';D.name='';D.code='';D.players=[];D.active=false;D.connected=false;D.busy=false;
-  D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';
+  D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.maxPlayers=MAX_PLAYERS;
   clearRoomHash();$('#multiplayer').close();
   if(wasActive)loadGame(restoreMode);
   if(nextMode&&nextMode!==G.mode)setMode(nextMode);
