@@ -179,6 +179,9 @@ dialog::backdrop{background:#0b100bb3;backdrop-filter:blur(3px)}
 .start-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--green);color:#fff;font-size:19px;font-weight:700}
 .modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .modalhead h2{font-size:21px;letter-spacing:-.6px;margin:0}
+.modalhead .multiplayer-title{flex:1;text-align:center}
+.dialog-back{border:0;background:none;color:var(--muted);padding:6px 2px;font:700 12px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.dialog-back:hover{color:var(--ink)}
 .close{border:0;background:var(--surface2);border-radius:10px;width:34px;height:34px;font-size:19px;cursor:pointer}
 .close:hover{background:var(--line)}
 .modalcopy{font-size:13.5px;line-height:1.6;color:var(--muted);margin:10px 0}
@@ -366,6 +369,7 @@ body.poople-mode .room-badge{display:none}
     <p class="welcome-kicker">Word Detective</p>
     <h2 id="playerChoiceTitle">How do you want to play?</h2>
     <p class="welcome-copy">Choose single player or team up with friends.</p>
+    <button class="btn ghost game-back" id="backFromPlayerChoice">← Back to games</button>
     <div class="start-options">
       <button class="start-option" id="chooseSingle">
         <span class="start-icon" aria-hidden="true">⌕</span>
@@ -488,7 +492,7 @@ body.poople-mode .room-badge{display:none}
 </div></dialog>
 
 <dialog id="multiplayer"><div class="dlg">
-  <div class="modalhead"><h2>Play together</h2><button class="close" data-close="multiplayer" aria-label="Close">×</button></div>
+  <div class="modalhead"><button class="dialog-back" id="backFromMultiplayer" aria-label="Back to player choice">← Back</button><h2 class="multiplayer-title">Play together</h2><button class="close" data-close="multiplayer" aria-label="Close">×</button></div>
   <p class="modalcopy">Choose how many players can join your private room. Everyone shares one board and six guesses; each guess appears for the whole team. Keep the host page open until the case ends.</p>
   <label class="field">Your name<input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Detective"></label>
   <label class="field">Room size<select id="playerCount"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option></select></label>
@@ -791,6 +795,7 @@ function renderSide(){
   $('#roomBadge').hidden=!D.code;
   $('#roomBadgeCode').textContent=D.code;
   $('#backToGamesFromDetective').hidden=multiplayerSelected;
+  $('#backFromMultiplayer').hidden=!!D.peer||!!D.conn||D.busy||D.active;
   $('#statsBtn').disabled=multi;
   $('#statsBtn').hidden=multiplayerSelected;
   $('.stats').hidden=multi;$('#duelPanel').hidden=!multi;
@@ -1008,6 +1013,7 @@ function openMultiplayer(){
 }
 function updateDuelLobby(message){
   if(message!==undefined)$('#multiplayerStatus').textContent=message;
+  $('#backFromMultiplayer').hidden=!!D.peer||!!D.conn||D.busy||D.active;
   $('.top').classList.toggle('has-room',!!D.code);
   $('#roomBadge').hidden=!D.code;
   $('#roomBadgeCode').textContent=D.code;
@@ -1418,10 +1424,12 @@ $('#settingsBtn').addEventListener('click',()=>{syncSettings();$('#settings').sh
 $('#roomBadge').addEventListener('click',async()=>{if(await copyText(D.code))toast('Room code copied!');else toast('Copy isn’t available here')});
 $('#startPlaying').addEventListener('click',()=>{ $('#welcome').close();$('#gameChooser').showModal() });
 $('#chooseWordDetective').addEventListener('click',()=>{ $('#gameChooser').close();$('#playerChoice').showModal() });
+$('#backFromPlayerChoice').addEventListener('click',()=>{ $('#playerChoice').close();$('#gameChooser').showModal() });
 $('#backToGamesFromDetective').addEventListener('click',()=>{if(G.mode==='multi'||D.peer||D.conn||D.busy||$('#multiplayer').open){toast('Leave the match first to switch games');return}$('#gameChooser').showModal()});
 $('#chooseSingle').addEventListener('click',()=>$('#playerChoice').close());
 $('#choosePoople').addEventListener('click',openPoople);
 $('#chooseMultiplayer').addEventListener('click',()=>{ $('#playerChoice').close();openMultiplayer() });
+$('#backFromMultiplayer').addEventListener('click',()=>{if(D.peer||D.conn||D.busy||D.active){toast('Leave the room first to go back');return}$('#multiplayer').close();$('#playerChoice').showModal()});
 ['welcome','gameChooser','playerChoice'].forEach(id=>$('#'+id).addEventListener('cancel',e=>e.preventDefault()));
 $$('[data-close]').forEach(b=>b.addEventListener('click',()=>$('#'+b.dataset.close).close()));
 $$('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d&&d.id!=='welcome')d.close()}));
