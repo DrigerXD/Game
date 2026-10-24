@@ -1,0 +1,11 @@
+{
+  "name": "wordloop",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/room-api.test.js"
+  },
+  "dependencies": {
+    "@vercel/functions": "^3.10.0"
+  }
+}
