@@ -493,7 +493,7 @@ body.poople-mode .room-badge{display:none}
 
 <dialog id="multiplayer"><div class="dlg">
   <div class="modalhead"><button class="dialog-back" id="backFromMultiplayer" aria-label="Back to player choice">← Back</button><h2 class="multiplayer-title">Play together</h2><button class="close" data-close="multiplayer" aria-label="Close">×</button></div>
-  <p class="modalcopy">Choose how many players can join your private room. Everyone shares one board and six guesses; each guess appears for the whole team. Keep the host page open until the case ends.</p>
+  <p class="modalcopy" id="multiplayerIntro">Choose how many players can join your private room. Everyone shares one board and six guesses; each guess appears for the whole team. Keep the host page open until the case ends.</p>
   <label class="field">Your name<input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Detective"></label>
   <label class="field">Room size<select id="playerCount"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option></select></label>
   <button class="btn primary" id="createRoom">Create room</button>
@@ -507,7 +507,7 @@ body.poople-mode .room-badge{display:none}
     <input class="invite-link" id="inviteLink" aria-label="Invite link" readonly>
     <button class="btn ghost" id="copyInvite">Copy invite link</button>
   </div>
-  <p class="modalcopy" id="multiplayerStatus" role="status" aria-live="polite">All players need an internet connection. Multiplayer uses PeerJS Cloud to connect the room.</p>
+  <p class="modalcopy" id="multiplayerStatus" role="status" aria-live="polite">All players need an internet connection. Browser rooms connect through PeerJS Cloud.</p>
   <button class="btn ghost" id="leaveRoom" hidden>Leave room</button>
 </div></dialog>
 
@@ -657,8 +657,9 @@ async function topUp(){
 let G={mode:'free',answer:'',guesses:[],done:false,won:false,hint:null,date:''};
 let cur='',grid=[],busy=false,round=0;
 const MAX_PLAYERS=4;
+const DISCORD_ACTIVITY=/(^|\.)discordsays\.com$/i.test(location.hostname)||new URLSearchParams(location.search).has('frame_id');
 const D={peer:null,conn:null,connections:new Map(),players:[],maxPlayers:MAX_PLAYERS,role:'',name:'',code:'',previousMode:'free',active:false,connected:false,busy:false,
-  sharedQueue:[],nextGuessId:0,pendingGuessId:null,gameId:''};
+  sharedQueue:[],nextGuessId:0,pendingGuessId:null,gameId:'',activityRelay:null};
 
 const keyOf=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const dayKey=()=>keyOf(new Date());
@@ -973,7 +974,7 @@ async function copyText(text){
 
 /* ---------- cooperative multiplayer rooms ---------- */
 let peerLoadPromise=null;
-const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js';
+const PEERJS_URL=new URL('./peerjs.min.js',document.baseURI).href;
 const ROOM_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function loadPeerJs(){
   if(window.Peer)return Promise.resolve();
@@ -986,6 +987,158 @@ function loadPeerJs(){
     document.head.append(script);
   });
   return peerLoadPromise;
+}
+function peerOptions(){
+  return{debug:1};
+}
+function activityClientId(){
+  if(window.crypto&&crypto.randomUUID)return crypto.randomUUID().replace(/-/g,'');
+  const bytes=new Uint8Array(16);window.crypto.getRandomValues(bytes);return [...bytes].map(byte=>byte.toString(16).padStart(2,'0')).join('');
+}
+async function activityRoomRequest(action,fields={}){
+  let response,data;
+  try{
+    response=await fetch(new URL('./api/room',document.baseURI),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...fields}),cache:'no-store'});
+  }catch(error){
+    const failure=new Error('Could not reach the Discord multiplayer relay. Check your connection and try again.');failure.code='network_error';throw failure;
+  }
+  try{data=await response.json()}catch{data=null}
+  if(!response.ok||!data||data.ok!==true){
+    const failure=new Error(data&&data.error||'relay_unavailable');
+    failure.code=response.status===404&&!data?'relay_not_deployed':data&&data.error||'relay_unavailable';failure.status=response.status;
+    throw failure;
+  }
+  return data;
+}
+function activityErrorText(error){
+  if(error&&error.code==='room_full')return 'That Discord room already has two players.';
+  if(error&&error.code==='host_offline')return 'That room’s host is offline. Ask them to create a new room.';
+  if(error&&error.code==='room_missing')return 'That room is closed or no longer online. Ask the host to create a new room.';
+  if(error&&error.code==='cannot_join_own_room')return 'You created this room. Invite another player to join.';
+  if(error&&error.code==='relay_not_deployed')return 'Discord multiplayer is not available yet. The latest Vercel deployment must include the room relay.';
+  if(error&&error.code==='relay_unavailable')return 'The Discord multiplayer relay is unavailable. Try again in a moment.';
+  if(error&&error.code==='not_a_room_member')return 'You are no longer connected to this room. Rejoin with the room code.';
+  return 'Could not connect to the Discord room. Check the code and your internet connection.';
+}
+function activityConnection(peerId,relay){
+  const listeners=new Map();
+  const conn={peer:peerId,open:false,
+    on(event,callback){if(!listeners.has(event))listeners.set(event,[]);listeners.get(event).push(callback);return conn},
+    emit(event,payload){for(const callback of listeners.get(event)||[])try{callback(payload)}catch(error){console.error(error)}},
+    send(message){
+      if(!conn.open)throw new Error('The room connection is closed');
+      relay.sendQueue=relay.sendQueue.then(async()=>{
+        if(!relay.running)return;
+        const sequence=relay.sequence+1;
+        let delay=500;
+        while(relay.running){
+          try{
+            await activityRoomRequest('send',{code:relay.code,clientId:relay.clientId,sequence,message});
+            relay.sequence=sequence;return;
+          }catch(error){
+            if(['not_a_room_member','room_missing','other_player_offline','message_not_allowed'].includes(error.code)){
+              if(D.activityRelay===relay&&error.code!=='other_player_offline')activityRelayFailed(relay,error);
+              return;
+            }
+            await new Promise(resolve=>setTimeout(resolve,delay));delay=Math.min(delay*2,4000);
+          }
+        }
+      }).catch(error=>{if(D.activityRelay===relay)activityRelayFailed(relay,error)});
+      return true;
+    },
+    close(){if(!conn.open)return;conn.open=false;conn.emit('close')}
+  };
+  return conn;
+}
+function openActivityConnection(conn){if(conn.open)return;conn.open=true;conn.emit('open')}
+function stopActivityPoll(relay){
+  relay.running=false;clearTimeout(relay.timer);
+  if(relay.wake){const wake=relay.wake;relay.wake=null;wake()}
+}
+function startActivityRelay(code,clientId,role){
+  const relay={code,clientId,role,sequence:0,cursor:0,running:true,timer:null,wake:null,sendQueue:Promise.resolve()};
+  D.activityRelay=relay;
+  relay.poll=runActivityRelay(relay);
+  return relay;
+}
+async function runActivityRelay(relay){
+  let wait=900;
+  while(relay.running){
+    try{
+      const data=await activityRoomRequest('poll',{code:relay.code,clientId:relay.clientId,cursor:relay.cursor});
+      wait=900;
+      if(data.closed||!data.ok){activityRelayFailed(relay,Object.assign(new Error('room_missing'),{code:'room_missing'}));return}
+      if(relay.role==='host'){
+        const liveIds=new Set();
+        if(data.guest){
+          liveIds.add(data.guest.id);
+          if(!D.connections.has(data.guest.id)){
+            const conn=activityConnection(data.guest.id,relay);D.connections.set(data.guest.id,conn);attachDuelConnection(conn);openActivityConnection(conn);
+          }
+        }
+        for(const [id,conn] of D.connections){if(!liveIds.has(id))conn.close()}
+      }else if(data.hostOnline===false){
+        if(D.conn)D.conn.close();
+      }
+      for(const entry of data.messages||[]){
+        relay.cursor=Math.max(relay.cursor,Number(entry.sequence)||0);
+        if(relay.role==='host'){
+          const conn=D.connections.get(entry.from||data.guest?.id);
+          if(conn)conn.emit('data',entry.message);
+        }else if(D.conn)D.conn.emit('data',entry.message);
+      }
+      if(data.cursor>relay.cursor)relay.cursor=data.cursor;
+    }catch(error){
+      if(['not_a_room_member','room_missing','relay_not_deployed'].includes(error.code)){activityRelayFailed(relay,error);return}
+      if(D.activityRelay===relay)$('#multiplayerStatus').textContent='Reconnecting to the Discord multiplayer relay…';
+      wait=Math.min(wait*2,5000);
+    }
+    if(relay.running)await new Promise(resolve=>{
+      relay.wake=()=>{relay.wake=null;resolve()};
+      relay.timer=setTimeout(()=>{relay.timer=null;relay.wake=null;resolve()},wait);
+    });
+  }
+}
+function activityRelayFailed(relay,error){
+  if(D.activityRelay!==relay)return;
+  stopActivityPoll(relay);
+  const message=activityErrorText(error);
+  D.busy=false;$('#multiplayerStatus').textContent=message;
+  if(D.role==='host')for(const conn of D.connections.values())conn.close();
+  else if(D.conn)D.conn.close();
+  updateDuelLobby(message);
+  if(G.mode==='multi'){setStatus(message);renderDuelPanel()}
+}
+function stopActivityRelay(){
+  const relay=D.activityRelay;if(!relay)return;
+  stopActivityPoll(relay);D.activityRelay=null;
+  relay.sendQueue.catch(()=>{}).then(()=>activityRoomRequest('leave',{code:relay.code,clientId:relay.clientId})).catch(()=>{});
+}
+async function createActivityRoom(){
+  const relayClientId=activityClientId();
+  try{
+    await activityRoomRequest('create',{code:D.code,clientId:relayClientId,name:D.name});
+    D.peer={id:relayClientId,destroy:stopActivityRelay};
+    D.busy=false;D.maxPlayers=2;$('#playerCount').value='2';setRoomHash(D.code);
+    startActivityRelay(D.code,relayClientId,'host');
+    updateDuelLobby('Room ready. You joined—invite one friend with the code.');enterHostWaiting();
+  }catch(error){
+    D.busy=false;D.role='';D.code='';D.maxPlayers=MAX_PLAYERS;
+    $('#multiplayerStatus').textContent=activityErrorText(error);updateDuelLobby();
+  }
+}
+async function joinActivityRoom(code){
+  const relayClientId=activityClientId();
+  try{
+    const result=await activityRoomRequest('join',{code,clientId:relayClientId,name:D.name});
+    D.peer={id:relayClientId,destroy:stopActivityRelay};D.maxPlayers=2;D.busy=false;
+    const relay=startActivityRelay(code,relayClientId,'guest');
+    D.conn=activityConnection(result.hostId,relay);attachDuelConnection(D.conn);openActivityConnection(D.conn);
+    updateDuelLobby('Connecting to the host…');
+  }catch(error){
+    D.busy=false;D.role='';D.code='';
+    $('#multiplayerStatus').textContent=activityErrorText(error);updateDuelLobby();
+  }
 }
 function cleanPlayerName(value){
   const name=String(value||'').replace(/[<>\u0000-\u001f]/g,'').trim().replace(/\s+/g,' ').slice(0,18);
@@ -1006,6 +1159,15 @@ function clearRoomHash(){
 }
 function openMultiplayer(){
   if(!$('#playerName').value)$('#playerName').value=store.get('wordloop.playerName','');
+  if(DISCORD_ACTIVITY){
+    $('#multiplayerIntro').textContent='Discord rooms support two detectives. Both players use the same shared board and six guesses.';
+    $('#playerCount').value='2';$('#playerCount').disabled=true;
+    $('#multiplayerStatus').textContent='All players need an internet connection. Discord rooms use the game relay.';
+  }else{
+    $('#multiplayerIntro').textContent='Choose how many players can join your private room. Everyone shares one board and six guesses; each guess appears for the whole team. Keep the host page open until the case ends.';
+    $('#playerCount').disabled=false;
+    $('#multiplayerStatus').textContent='All players need an internet connection. Browser rooms connect through PeerJS Cloud.';
+  }
   updateDuelLobby();
   if(!$('#multiplayer').open)$('#multiplayer').showModal();
   renderSide();
@@ -1027,7 +1189,7 @@ function updateDuelLobby(message){
   $('#createRoom').disabled=D.busy||!!D.peer;
   $('#joinRoom').disabled=D.busy||!!D.peer;
   $('#playerName').disabled=!!D.peer;
-  $('#playerCount').disabled=D.busy||!!D.peer;
+  $('#playerCount').disabled=DISCORD_ACTIVITY||D.busy||!!D.peer;
   $('#joinCode').disabled=!!D.peer;
   $('#leaveRoom').hidden=!D.peer&&!D.conn&&!D.active&&!D.busy;
   $('#leaveRoom').textContent=D.busy?'Cancel connection':G.mode==='multi'?'Leave match':'Leave room';
@@ -1054,12 +1216,13 @@ function roomPeerId(code){return 'wordloop-'+String(code).toLowerCase()}
 function createMultiplayerRoom(){
   if(D.peer||D.busy)return;
   if(!window.isSecureContext){$('#multiplayerStatus').textContent='Multiplayer needs a secure connection. Open the game over HTTPS.';return}
-  D.busy=true;D.role='host';D.name=getPlayerName();D.code=randomRoomCode();D.maxPlayers=Math.min(MAX_PLAYERS,Math.max(2,Number($('#playerCount').value)||MAX_PLAYERS));D.previousMode=G.mode;
+  D.busy=true;D.role='host';D.name=getPlayerName();D.code=randomRoomCode();D.maxPlayers=DISCORD_ACTIVITY?2:Math.min(MAX_PLAYERS,Math.max(2,Number($('#playerCount').value)||MAX_PLAYERS));D.previousMode=G.mode;
   D.connections=new Map();D.players=[{id:'host',name:D.name}];D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.active=false;D.connected=false;
+  if(DISCORD_ACTIVITY){createActivityRoom();return}
   updateDuelLobby('Opening a private room…');
   loadPeerJs().then(()=>{
     if(D.role!=='host'||!D.busy)return;
-    const peer=new window.Peer(roomPeerId(D.code),{debug:1});D.peer=peer;
+    const peer=new window.Peer(roomPeerId(D.code),peerOptions());D.peer=peer;
     peer.on('open',()=>{
       if(D.peer!==peer)return;
       D.busy=false;setRoomHash(D.code);updateDuelLobby(`Room ready. You joined—invite up to ${D.maxPlayers-1} more players.`);
@@ -1085,11 +1248,12 @@ function joinMultiplayerRoom(requestedCode){
   if(D.peer||D.busy)return;
   if(!window.isSecureContext){$('#multiplayerStatus').textContent='Multiplayer needs a secure connection. Open the game over HTTPS.';return}
   D.busy=true;D.role='guest';D.name=getPlayerName();D.code=code;D.previousMode=G.mode;
-  D.connections=new Map();D.players=[];D.maxPlayers=MAX_PLAYERS;D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.active=false;D.connected=false;
+  D.connections=new Map();D.players=[];D.maxPlayers=DISCORD_ACTIVITY?2:MAX_PLAYERS;D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.active=false;D.connected=false;
   $('#joinCode').value=code;updateDuelLobby('Connecting to the room…');
+  if(DISCORD_ACTIVITY){joinActivityRoom(code);return}
   loadPeerJs().then(()=>{
     if(D.role!=='guest'||!D.busy)return;
-    const peer=new window.Peer(undefined,{debug:1});D.peer=peer;
+    const peer=new window.Peer(undefined,peerOptions());D.peer=peer;
     peer.on('open',()=>{
       if(D.peer!==peer)return;
       D.busy=false;
@@ -1282,7 +1446,7 @@ function leaveDuel(nextMode){
   if(D.connected)sendDuel({type:'leave'});
   const conn=D.conn,peer=D.peer,connections=[...D.connections.values()];D.conn=null;D.peer=null;D.connections.clear();
   try{if(conn)conn.close()}catch{}connections.forEach(connection=>{try{connection.close()}catch{}});try{if(peer)peer.destroy()}catch{}
-  D.role='';D.name='';D.code='';D.players=[];D.active=false;D.connected=false;D.busy=false;
+  D.role='';D.name='';D.code='';D.players=[];D.active=false;D.connected=false;D.busy=false;D.activityRelay=null;
   D.sharedQueue=[];D.nextGuessId=0;D.pendingGuessId=null;D.gameId='';D.maxPlayers=MAX_PLAYERS;
   clearRoomHash();$('#multiplayer').close();
   if(wasActive)loadGame(restoreMode);

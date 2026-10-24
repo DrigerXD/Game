@@ -1,5 +1,9 @@
 # Third-party notices
 
+## PeerJS
+
+`peerjs.min.js` is the PeerJS 1.5.5 browser client from [peers/peerjs](https://github.com/peers/peerjs), licensed under the MIT License. See [PEERJS_LICENSE.txt](PEERJS_LICENSE.txt) for the license text.
+
 ## an-array-of-english-words
 
 The four-letter word subset in `poople-words.js` is based on the word list from [words/an-array-of-english-words](https://github.com/words/an-array-of-english-words), licensed under the MIT License. The list was filtered to four-letter entries and selected entries were excluded. Copyright (c) 2014 Zeke Sikelianos.
